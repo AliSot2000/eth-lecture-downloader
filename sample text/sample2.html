@@ -1,0 +1,1251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="Systemueberwachung" content="ETHZ"/>
+
+    <meta name="pagetype" content="web" />
+
+<link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/default.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/style960/style960.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/print.css">
+    
+    <link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/patch.css">
+    
+    <title>Lectures | ETH Z&uuml;rich Videoportal</title><link rel="stylesheet" type="text/css" href="/etc/designs/mmp/css/mmp.css">
+
+    <script type="text/javascript" src="/etc/designs/mmp/js/default.js"></script>
+
+<!--[if lte IE 7]>      
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie7.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie7.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/default/print_ie7.css">  
+<![endif]-->
+
+<!--[if IE 8]>
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie8.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie8.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/default/print_ie8.css">        
+<![endif]-->
+
+<!--[if IE 9]>       
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie9.js"></script> 
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie9.css">
+<![endif]-->
+<script type="text/javascript" src="/etc/designs/mmp/js/search.js"></script>
+    <script type="text/javascript" src="/etc/designs/mmp/js/video.js"></script>
+
+    </head>
+<body id="turquoise" class="style960 overview">
+    <!-- header -->
+    <div id="userStatusBar" style="display: none;"></div>
+<script type="text/javascript">
+    jQuery(document).ready(function loadStatusbar() {    
+        $.ajax({
+            type:     'GET',
+            dataType: 'HTML',
+            cache:    false,
+            url:      '/content/vp/en/lectures/jcr:content.mmp.statusbar.html',
+            success:  function (response) {          
+                if (response) {
+                	if (response.lastIndexOf("</" + "html" + ">") != -1) {
+                   		// We got a complete HTML document -> replace whole document
+                   		document.open("text/html","replace");
+                   		document.write(response);
+                   		document.close();
+                   	} else {
+                   		var statusbar = $('#userStatusBar');
+                   	    statusbar.html(response);
+                        registerDropDown(statusbar);
+
+                        $('body').addClass('loggedin');
+                        statusbar.show();
+                        
+                        // Remove the login link when logged in
+                        $('a.login').remove();
+                   	}
+                }            
+            },
+                
+            
+        });
+    });
+</script><header id="header" class="container_10">
+	<div class="grid_6">
+        <div id="logo">
+		     <a href="https://www.ethz.ch/en.html" title="ETH Zurich homepage">
+                 <img src="/etc/designs/mmp/img/header/eth_logo.png" id="Logo" alt="Logo of ETH Zurich, to homepage"/>
+             </a>
+		</div>
+		<div id="printlogo" class="print">
+             <img src="/etc/designs/mmp/img/header/eth_logo_kurz_schwarz_D_print_300dpi.png" alt="Logo of ETH Zurich, to homepage"/>
+        </div>        
+	</div>
+	
+    <div class="grid_6">
+    <div id="headline" class="emptyHeadline">
+	   <div class="headlineSmall emptyLine1 emptyLine2">
+	       <div class="line1">&nbsp;</div>
+	       <div class="line2">&nbsp;</div>
+	   </div>
+	   <div class="headlineBig">&nbsp;</div>
+    </div>
+	<div class="headlineBig">&nbsp;</div>
+</div></header><!-- navigation -->
+    <nav role="navigation" class="container_10" id="nav">
+    <ul>
+
+        <li id="nav-first" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Video portal" href="/">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Video portal</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Campus" href="/campus.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Campus</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/campus/betrieb.html">Betrieb</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/alumni.html">ETH Alumni Headquarter</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/eth-day.html">ETH Day</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/bibliothek.html">ETH-Bibliothek</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/immobilien.html">Immobilien</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/isn.html">International Relations and Security Network</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/miscellaneous.html">Miscellaneous</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/qsit.html">NCCR QSIT-Quantum Science and Technology</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/safeit.html">PROTECT YOUR BRAINWORK.</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/sgu.html">SGU / SSHE</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/spark-award.html">Spark Award</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/townhall.html">Townhall</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/treffpunkt-science-city.html">Treffpunkt Science City</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/unitedvisions.html">United Visions - Science City Magazin</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Conferences" href="/conferences.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Conferences</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/conferences/2020.html">2020</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2019.html">2019</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2018.html">2018</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2017.html">2017</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2016.html">2016</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2015.html">2015</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2014.html">2014</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2013.html">2013</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2012.html">2012</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2011.html">2011</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2010.html">2010</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2009.html">2009</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Events" href="/events.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Events</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/events/2022.html">2022</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2021.html">2021</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2020.html">2020</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2019.html">2019</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2018.html">2018</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2017.html">2017</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2016.html">2016</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2015.html">2015</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2014.html">2014</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2013.html">2013</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2012.html">2012</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2011.html">2011</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2010.html">2010</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2009.html">2009</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2008.html">2008</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2007.html">2007</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/asvz.html">ASVZ</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/d-matl.html">D-MATL</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/esc.html">ESC</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/lca.html">LCA</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/lms.html">LMS</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/leadership_dialogue.html">Leadership Dialogues</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/nsl.html">NSL</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/opencast.html">Opencast</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/psc.html">PSC</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/sbe16.html">SBE16</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/venture.html">Venture</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="active" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Lectures" href="/lectures.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Lectures</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/lectures/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-baug.html">D-BAUG</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-biol.html">D-BIOL</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-bsse.html">D-BSSE</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-chab.html">D-CHAB</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-erdw.html">D-ERDW</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-gess.html">D-GESS</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-hest.html">D-HEST</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-infk.html">D-INFK</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-itet.html">D-ITET</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-math.html">D-MATH</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-matl.html">D-MATL</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-mavt.html">D-MAVT</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-mtec.html">D-MTEC</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-phys.html">D-PHYS</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-usys.html">D-USYS</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Speakers" href="/speakers.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Speakers</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/speakers/introductory_lectures.html">Antrittsvorlesungen</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/bernays.html">Bernays</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/cscs.html">CSCS</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/collegium-helveticum.html">Collegium-Helveticum</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/cortona_week.html">Cortona Week</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-bsse.html">D-BSSE: Lunch Meetings Molecular Systems Engineering</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-infk.html">D-INFK</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-mavt.html">D-MAVT</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-phys.html">D-PHYS - Special events</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/distinguished_speakers.html">Distinguished Speakers</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/egz.html">EGZ</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ethistory.html">ETHistory 1855-2005</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/lecture.html">Einf&uuml;hrungs- und Abschiedsvorlesungen</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/empa.html">Empa-Akademie</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/executive_channel.html">Executive Channel</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/global-lecture.html">Global-Lecture</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/hurwitz.html">Hurwitz Memorial Lecture Series</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ipa.html">IPA Colloquium</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/its.html">ITS</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/interviews.html">Interviews</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/oral-history.html">Oral-History</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/pauli.html">Pauli</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/nachkriegszeit.html">Professur f&uuml;r Architekturtheorie</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/qsit.html">QSIT/Quantum Center, ETH Zurich Colloquium</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/qsitseminars.html">QSIT/Quantum Center, ETH Zurich Seminars</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ernst.html">Richard R. Ernst Lecture</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/sdsc.html">SDSC Speaker Sessions</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/zurich_physics_colloquium.html">The Zurich Physics Colloquium</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Support" href="/documents.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Support</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        </nav>
+                </div>
+            </li>
+
+        <li id="nav-last" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Live" href="/live.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Live</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/live/events.html">Events</a>
+                                   </li>
+                               <li>
+                                       <a href="/live/lectures.html">Lectures</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        </ul>
+
+    <div class="clear">&nbsp;</div>
+</nav>
+<!-- content -->
+    <section id="content" class="container_10">
+    
+        <!-- breadcrumb -->
+        <div id="contentContainer" class="grid_10">
+        
+            <!-- contentNav -->
+            <div class="left sidebar basecomponent"><nav class="grid_3" id="contentNav">
+    <ul class="level0">
+            <li class="cur">
+        <a href="/lectures.html">
+            <span></span>
+            Lectures</a>
+        <ul style="display: block">
+                <li class="">
+        <a href="/lectures/d-arch.html">
+            D-ARCH</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-baug.html">
+            D-BAUG</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-biol.html">
+            D-BIOL</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-bsse.html">
+            D-BSSE</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-chab.html">
+            D-CHAB</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-erdw.html">
+            D-ERDW</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-gess.html">
+            D-GESS</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-hest.html">
+            D-HEST</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-infk.html">
+            D-INFK</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-itet.html">
+            D-ITET</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-math.html">
+            D-MATH</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-matl.html">
+            D-MATL</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-mavt.html">
+            D-MAVT</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-mtec.html">
+            D-MTEC</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-phys.html">
+            D-PHYS</a>
+        </li>
+                <li class="">
+        <a href="/lectures/d-usys.html">
+            D-USYS</a>
+        </li>
+
+    </ul>
+        </li>
+
+    </ul>
+
+    
+    &nbsp;
+</nav>
+</div>
+<!-- START main content -->
+            <section class="grid_7 omega" id="contentMain">
+                <script src="/etc/clientlibs/ethz/mmp/core.js"></script>
+<div class="searchinput basecomponent"><div id="videosearch" class="grid_2 omega" role="complementary" style="float: right">
+            <form method="GET" action="/search-results.html">
+                <input type="text"
+                       id="videosearchinput"
+                       class="videosearchinput"
+                       name="query"
+                       aria-required="false"
+
+                
+
+                    placeholder="Search all videos
+                    "
+
+                
+
+                data-placeholder="Search all videos
+                "
+                title="Search all videos
+                "
+                value=""
+                >
+
+                <input type="image"
+                       id="videosearchsubmit"
+                       class="videosearchsubmit"
+                       src="/etc/designs/mmp/img/header/search_btn.png"
+                       aria-required="false"
+                       alt="Search"
+                       title="Search"
+                        >
+            </form>
+        </div>
+        <div class="clear"></div>
+    </div>
+<div class="notification basecomponent"></div>
+<h1>Lectures</h1>
+
+<div class="par-before parsys basecomponent"><div class="par-before parsys basecomponent ">
+
+</div>
+</div>
+<div class="childs listOfChilds basecomponent"><div class="newsList video col3">
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-arch.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-arch/_jcr_content/thumbnail.imageformat.contentteaser.945778910.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-ARCH</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-baug.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-baug/_jcr_content/thumbnail.imageformat.contentteaser.1818032962.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-BAUG</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-biol.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-biol/_jcr_content/thumbnail.imageformat.contentteaser.2068762174.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-BIOL</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-bsse.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-bsse/_jcr_content/thumbnail.imageformat.contentteaser.1386985492.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-BSSE</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-chab.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-chab/_jcr_content/thumbnail.imageformat.contentteaser.1386916617.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-CHAB</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-erdw.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-erdw/_jcr_content/thumbnail.imageformat.contentteaser.1386850187.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-ERDW</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-gess.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-gess/_jcr_content/thumbnail.imageformat.contentteaser.1386801316.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-GESS</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-hest.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-HEST</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-infk.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-infk/_jcr_content/thumbnail.imageformat.contentteaser.1386730855.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-INFK</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-itet.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-itet/_jcr_content/thumbnail.imageformat.contentteaser.280934724.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-ITET</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-math.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-math/_jcr_content/thumbnail.imageformat.contentteaser.2069136619.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-MATH</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-matl.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-matl/_jcr_content/thumbnail.imageformat.contentteaser.1892883479.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-MATL</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-mavt.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-mavt/_jcr_content/thumbnail.imageformat.contentteaser.1981225693.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-MAVT</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-mtec.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-mtec/_jcr_content/thumbnail.imageformat.contentteaser.1386514245.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-MTEC</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-phys.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-phys/_jcr_content/thumbnail.imageformat.contentteaser.2069575734.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-PHYS</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/lectures/d-usys.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img alt="" title="" src="https://video.ethz.ch/lectures/d-usys/_jcr_content/thumbnail.imageformat.contentteaser.1386457820.png"/>
+		    </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">D-USYS</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    </div>
+            </div>
+<div class="par-after parsys basecomponent"><div class="par-after parsys basecomponent ">
+
+</div>
+</div>
+</section>
+            <!-- END main content -->            
+        </div>        
+        <div class="clear">&nbsp;</div> 
+    </section>
+
+    <!-- footer -->
+    <footer class="container_10" id="footer">
+	<div class="grid_10" id="footerContainer">
+		<div id="footerLinks">
+			<ul>
+						<li><a href="/footer/sitemap.html"> Sitemap</a></li>
+						<li><a href="/footer/imprint.html"> Imprint</a></li>
+						<li><a href="/footer/disclaimer.html"> Disclaimer</a></li>
+						<li><a href="/footer/copyright.html"> Copyright</a></li>
+						</ul>
+				</div>
+		<div id="copyright">
+			<span> &copy; 2022&nbsp;<a href="http://www.ethz.ch/">Eidgen&ouml;ssische
+					Technische Hochschule Z&uuml;rich</a>
+			</span>
+		</div>
+	</div>
+	<div class="clear">&nbsp;</div>
+</footer>
+
+<!-- Print footer -->
+<div class="print" id="printFooter">
+    <div class="printFooterContent">
+        <b>Page URL:</b>
+        https://video.ethz.ch:443/lectures.html<br />
+        <b>08.04.2022</b><br />
+        <b> &copy; 2022&nbsp;<a href="http://www.ethz.ch/">Eidgen&ouml;ssische Technische Hochschule Z&uuml;rich</a></b>
+    </div>
+</div><div id="lightboxPlaceHolder"></div>
+    
+    <!--  timings -->    
+    
+
+
+
+
+
+
+
+<!--
+More detailed timing info is available by uncommenting some code in the timing.jsp component
+Timing chart URL:
+http://chart.apis.google.com/chart?chtt=%2Flectures.html+%28347701ms%29&cht=bhs&chxt=x&chco=c6d9fd,4d89f9&chbh=a&chds=0,347701,0,347701&chxr=0,0,347701&chd=t:9,5407,6637,6898,7007,7111,7282,7425,7610,7702,153556,153761,154334,154455,154550,180399,181134,181275,182985,183102,183988,184098,184671,184778,204136,205668,206547,206981,210765,211980,212880,213263,249158,250366,251265,251695,255656,256948,257822,258226,262278,263706,264662,265077,269216,270603,271499,271924,275959,277305,278193,278608,285175,286576,287500,287942,292030,293301,294305,294833,298782,300061,300941,301329,305175,306623,307482,307879,311983,313351,314245,314659,319100,320481,321446,321960,326526,327902,328830,329251,333682,335116,336407,336981,341124,341261,341414|1995,1788,152,103,99,81,414,93,84,145706,194,26623,26008,25878,25776,161007,1400,1253,594,474,259,147,155934,155821,218,3537,2654,2210,219,35465,34558,34153,226,3689,2786,2343,216,3733,2853,2436,216,3874,2913,2474,240,3713,2813,2376,213,3676,2781,2352,234,3818,2889,2435,207,3878,2869,2329,207,3581,2697,2298,307,3794,2928,2515,220,4009,3111,2681,226,3967,2996,2467,228,3814,2882,2448,249,5392,4095,3504,266,126,6287&chly=handleSecurity|head.jsp|additionalMeta.jsp|init.jsp|title.jsp|defaultScripts.jsp|header.jsp|statusbar.jsp|top.jsp|topnav.jsp|breadcrumb.jsp|leftnav.jsp|basecomponent.jsp|component.jsp|left.jsp|content.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|thumbnail%29|basecomponent.jsp|component.jsp|_imagesnippet.jsp|basecomponent.jsp|component.jsp|footer.jsp&chs=600x500
+-->
+
+<!-- access statistics -->
+    <!-- Access statistics -->
+    <script type="text/javascript">
+    // ==================================================================
+    // 1. Data Layer, fuer jede Seite anders, von AEM befuellt
+    // ==================================================================
+
+    var DataLayer = {
+        od_dcsid:      'dcs222gqy2n1s1s7saewmblr1_1u5v',
+        od_domain:     'statse.webtrendslive.com',
+        op_dcsid:      '',
+        op_domain:     'wtsdc.ethz.ch',
+    
+        wt_fpc_domain: '', // Cookie Domain, default ist .ethz.ch
+    
+        site:          'Lectures', // Site name
+        uri_internal:  'lectures', // interne URL nur ab site root (ohne Sprache)
+        oss_term:      '', // gesuchter Begriff
+        oss_results:   '', // Anzahl Resultate fuer oss_results
+        oss_engine:    '', // onsite | ethz (default)  --> WT Parameter abfuellen  
+        oss_lang:      '', // falls Suche auf Sprache gefiltert: Sprache  
+        page_lang:     'en', // Sprache der Seite
+        page_group:    'lectures', // Inhaltsgruppe der Seite (Navigation Level 1)
+        page_subgroup: '',  // Inhaltsuntergruppe der Seite (Navigation Level 2)
+        //visit_ext:   '',   // '0' = internal, '1' = external
+    
+        events:        false  // Steuert, ob Events fuer die aktuelle Seite getrackt werden
+    }
+    </script>
+    
+<script src='/js/webtrends.datacollector.js'></script>
+</body>
+</html>

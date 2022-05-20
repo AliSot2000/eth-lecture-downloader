@@ -1,0 +1,1007 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="Systemueberwachung" content="ETHZ"/>
+
+    <meta name="pagetype" content="web" />
+
+<link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/default.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/style960/style960.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/print.css">
+    
+    <link rel="stylesheet" type="text/css" media="screen" href="/etc/designs/mmp/css/patch.css">
+    
+    <title>ETH-Bibliothek | ETH Z&uuml;rich Videoportal</title><link rel="stylesheet" type="text/css" href="/etc/designs/mmp/css/mmp.css">
+
+    <script type="text/javascript" src="/etc/designs/mmp/js/default.js"></script>
+
+<!--[if lte IE 7]>      
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie7.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie7.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/default/print_ie7.css">  
+<![endif]-->
+
+<!--[if IE 8]>
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie8.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie8.css">
+    <link rel="stylesheet" type="text/css" media="print" href="/etc/designs/mmp/css/default/print_ie8.css">        
+<![endif]-->
+
+<!--[if IE 9]>       
+    <script type="text/javascript" src="/etc/designs/mmp/js/ie9.js"></script> 
+    <link rel="stylesheet" type="text/css" media="screen,print" href="/etc/designs/mmp/css/default/ie9.css">
+<![endif]-->
+<script type="text/javascript" src="/etc/designs/mmp/js/search.js"></script>
+    <script type="text/javascript" src="/etc/designs/mmp/js/video.js"></script>
+
+    </head>
+<body id="turquoise" class="style960 overview">
+    <!-- header -->
+    <div id="userStatusBar" style="display: none;"></div>
+<script type="text/javascript">
+    jQuery(document).ready(function loadStatusbar() {    
+        $.ajax({
+            type:     'GET',
+            dataType: 'HTML',
+            cache:    false,
+            url:      '/content/vp/en/campus/bibliothek/jcr:content.mmp.statusbar.html',
+            success:  function (response) {          
+                if (response) {
+                	if (response.lastIndexOf("</" + "html" + ">") != -1) {
+                   		// We got a complete HTML document -> replace whole document
+                   		document.open("text/html","replace");
+                   		document.write(response);
+                   		document.close();
+                   	} else {
+                   		var statusbar = $('#userStatusBar');
+                   	    statusbar.html(response);
+                        registerDropDown(statusbar);
+
+                        $('body').addClass('loggedin');
+                        statusbar.show();
+                        
+                        // Remove the login link when logged in
+                        $('a.login').remove();
+                   	}
+                }            
+            },
+                
+            
+        });
+    });
+</script><header id="header" class="container_10">
+	<div class="grid_6">
+        <div id="logo">
+		     <a href="https://www.ethz.ch/en.html" title="ETH Zurich homepage">
+                 <img src="/etc/designs/mmp/img/header/eth_logo.png" id="Logo" alt="Logo of ETH Zurich, to homepage"/>
+             </a>
+		</div>
+		<div id="printlogo" class="print">
+             <img src="/etc/designs/mmp/img/header/eth_logo_kurz_schwarz_D_print_300dpi.png" alt="Logo of ETH Zurich, to homepage"/>
+        </div>        
+	</div>
+	
+    <div class="grid_6">
+    <div id="headline" class="emptyHeadline">
+	   <div class="headlineSmall emptyLine1 emptyLine2">
+	       <div class="line1">&nbsp;</div>
+	       <div class="line2">&nbsp;</div>
+	   </div>
+	   <div class="headlineBig">&nbsp;</div>
+    </div>
+	<div class="headlineBig">&nbsp;</div>
+</div></header><!-- navigation -->
+    <nav role="navigation" class="container_10" id="nav">
+    <ul>
+
+        <li id="nav-first" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Video portal" href="/">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Video portal</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="active" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Campus" href="/campus.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Campus</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/campus/betrieb.html">Betrieb</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/alumni.html">ETH Alumni Headquarter</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/eth-day.html">ETH Day</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/bibliothek.html">ETH-Bibliothek</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/immobilien.html">Immobilien</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/isn.html">International Relations and Security Network</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/miscellaneous.html">Miscellaneous</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/qsit.html">NCCR QSIT-Quantum Science and Technology</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/safeit.html">PROTECT YOUR BRAINWORK.</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/sgu.html">SGU / SSHE</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/spark-award.html">Spark Award</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/townhall.html">Townhall</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/treffpunkt-science-city.html">Treffpunkt Science City</a>
+                                   </li>
+                               <li>
+                                       <a href="/campus/unitedvisions.html">United Visions - Science City Magazin</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Conferences" href="/conferences.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Conferences</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/conferences/2020.html">2020</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2019.html">2019</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2018.html">2018</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2017.html">2017</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2016.html">2016</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2015.html">2015</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2014.html">2014</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2013.html">2013</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2012.html">2012</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2011.html">2011</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2010.html">2010</a>
+                                   </li>
+                               <li>
+                                       <a href="/conferences/2009.html">2009</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Events" href="/events.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Events</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/events/2022.html">2022</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2021.html">2021</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2020.html">2020</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2019.html">2019</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2018.html">2018</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2017.html">2017</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2016.html">2016</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2015.html">2015</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2014.html">2014</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2013.html">2013</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2012.html">2012</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2011.html">2011</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2010.html">2010</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2009.html">2009</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2008.html">2008</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/2007.html">2007</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/asvz.html">ASVZ</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/d-matl.html">D-MATL</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/esc.html">ESC</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/lca.html">LCA</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/lms.html">LMS</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/leadership_dialogue.html">Leadership Dialogues</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/nsl.html">NSL</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/opencast.html">Opencast</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/psc.html">PSC</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/sbe16.html">SBE16</a>
+                                   </li>
+                               <li>
+                                       <a href="/events/venture.html">Venture</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Lectures" href="/lectures.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Lectures</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/lectures/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-baug.html">D-BAUG</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-biol.html">D-BIOL</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-bsse.html">D-BSSE</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-chab.html">D-CHAB</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-erdw.html">D-ERDW</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-gess.html">D-GESS</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-hest.html">D-HEST</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-infk.html">D-INFK</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-itet.html">D-ITET</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-math.html">D-MATH</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-matl.html">D-MATL</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-mavt.html">D-MAVT</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-mtec.html">D-MTEC</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-phys.html">D-PHYS</a>
+                                   </li>
+                               <li>
+                                       <a href="/lectures/d-usys.html">D-USYS</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Speakers" href="/speakers.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Speakers</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/speakers/introductory_lectures.html">Antrittsvorlesungen</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/bernays.html">Bernays</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/cscs.html">CSCS</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/collegium-helveticum.html">Collegium-Helveticum</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/cortona_week.html">Cortona Week</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-arch.html">D-ARCH</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-bsse.html">D-BSSE: Lunch Meetings Molecular Systems Engineering</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-infk.html">D-INFK</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-mavt.html">D-MAVT</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/d-phys.html">D-PHYS - Special events</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/distinguished_speakers.html">Distinguished Speakers</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/egz.html">EGZ</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ethistory.html">ETHistory 1855-2005</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/lecture.html">Einf&uuml;hrungs- und Abschiedsvorlesungen</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/empa.html">Empa-Akademie</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/executive_channel.html">Executive Channel</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/global-lecture.html">Global-Lecture</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/hurwitz.html">Hurwitz Memorial Lecture Series</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ipa.html">IPA Colloquium</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/its.html">ITS</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/interviews.html">Interviews</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/oral-history.html">Oral-History</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/pauli.html">Pauli</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/nachkriegszeit.html">Professur f&uuml;r Architekturtheorie</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/qsit.html">QSIT/Quantum Center, ETH Zurich Colloquium</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/qsitseminars.html">QSIT/Quantum Center, ETH Zurich Seminars</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/ernst.html">Richard R. Ernst Lecture</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/sdsc.html">SDSC Speaker Sessions</a>
+                                   </li>
+                               <li>
+                                       <a href="/speakers/zurich_physics_colloquium.html">The Zurich Physics Colloquium</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        <li id="" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Support" href="/documents.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Support</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        </nav>
+                </div>
+            </li>
+
+        <li id="nav-last" class="" aria-haspopup="true">
+                <div class="placeholder"></div>
+                <div class="zIndex">
+                    <a title="Live" href="/live.html">
+                        <div class="overlayContainer">
+                            <div class="linkContainer">
+                                <div class="borderBox">
+                                    <div class="arrowRight"></div>
+                                    <div class="maxWidth">
+                                        <span class="navText">Live</span>
+                                    </div>
+                                </div>
+                                <div class="subOverview-overlay" aria-haspopup="false">
+                                    <div class="subOverview">
+                                        Overview</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <nav class="nav-sub" aria-haspopup="false">
+                        <ul>
+                               <li>
+                                       <a href="/live/events.html">Events</a>
+                                   </li>
+                               <li>
+                                       <a href="/live/lectures.html">Lectures</a>
+                                   </li>
+                               </ul>
+                        </nav>
+                </div>
+            </li>
+
+        </ul>
+
+    <div class="clear">&nbsp;</div>
+</nav>
+<!-- content -->
+    <section id="content" class="container_10">
+    
+        <!-- breadcrumb -->
+        <div id="contentContainer" class="grid_10">
+        
+            <!-- contentNav -->
+            <div class="left sidebar basecomponent"><nav class="grid_3" id="contentNav">
+    <ul class="level0">
+            <li class="par">
+        <a href="/campus.html">
+            <span></span>
+            Campus</a>
+        <ul style="display: block">
+                <li class="">
+        <a href="/campus/betrieb.html">
+            Betrieb</a>
+        </li>
+                <li class="">
+        <a href="/campus/alumni.html">
+            ETH Alumni Headquarter</a>
+        </li>
+                <li class="">
+        <a href="/campus/eth-day.html">
+            ETH Day</a>
+        </li>
+                <li class="cur">
+        <a href="/campus/bibliothek.html">
+            ETH-Bibliothek</a>
+        <ul style="display: block">
+                <li class="">
+        <a href="/campus/bibliothek/colloquium.html">
+            17:15 Kolloquium ETH-Bibliothek</a>
+        </li>
+                <li class="">
+        <a href="/campus/bibliothek/bildarchiv.html">
+            Bildarchiv</a>
+        </li>
+                <li class="">
+        <a href="/campus/bibliothek/einzelpw.html">
+            Einzelveranstaltungen (mit PW)</a>
+        </li>
+                <li class="">
+        <a href="/campus/bibliothek/historisch.html">
+            Historische Filme und Tonaufzeichnungen</a>
+        </li>
+                <li class="">
+        <a href="/campus/bibliothek/max_frisch.html">
+            Max Frisch-Archiv</a>
+        </li>
+                <li class="">
+        <a href="/campus/bibliothek/thomas_mann.html">
+            Thomas-Mann-Archiv</a>
+        </li></ul>
+        </li><li class="">
+        <a href="/campus/immobilien.html">
+            Immobilien</a>
+        </li>
+                <li class="">
+        <a href="/campus/isn.html">
+            International Relations and Security Network</a>
+        </li>
+                <li class="">
+        <a href="/campus/miscellaneous.html">
+            Miscellaneous</a>
+        </li>
+                <li class="">
+        <a href="/campus/qsit.html">
+            NCCR QSIT-Quantum Science and Technology</a>
+        </li>
+                <li class="">
+        <a href="/campus/safeit.html">
+            PROTECT YOUR BRAINWORK.</a>
+        </li>
+                <li class="">
+        <a href="/campus/sgu.html">
+            SGU / SSHE</a>
+        </li>
+                <li class="">
+        <a href="/campus/spark-award.html">
+            Spark Award</a>
+        </li>
+                <li class="">
+        <a href="/campus/townhall.html">
+            Townhall</a>
+        </li>
+                <li class="">
+        <a href="/campus/treffpunkt-science-city.html">
+            Treffpunkt Science City</a>
+        </li>
+                <li class="">
+        <a href="/campus/unitedvisions.html">
+            United Visions - Science City Magazin</a>
+        </li>
+
+    </ul>
+        </li>
+
+    </ul>
+
+    
+    &nbsp;
+</nav>
+</div>
+<!-- START main content -->
+            <section class="grid_7 omega" id="contentMain">
+                <script src="/etc/clientlibs/ethz/mmp/core.js"></script>
+<div class="searchinput basecomponent"><div id="videosearch" class="grid_2 omega" role="complementary" style="float: right">
+            <form method="GET" action="/search-results.html">
+                <input type="text"
+                       id="videosearchinput"
+                       class="videosearchinput"
+                       name="query"
+                       aria-required="false"
+
+                
+
+                    placeholder="Search all videos
+                    "
+
+                
+
+                data-placeholder="Search all videos
+                "
+                title="Search all videos
+                "
+                value=""
+                >
+
+                <input type="image"
+                       id="videosearchsubmit"
+                       class="videosearchsubmit"
+                       src="/etc/designs/mmp/img/header/search_btn.png"
+                       aria-required="false"
+                       alt="Search"
+                       title="Search"
+                        >
+            </form>
+        </div>
+        <div class="clear"></div>
+    </div>
+<div class="notification basecomponent"></div>
+<h1>ETH-Bibliothek</h1>
+
+<div class="par-before parsys basecomponent"><div class="par-before parsys basecomponent ">
+
+</div>
+</div>
+<div class="childs listOfChilds basecomponent"><div class="newsList video col3">
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/colloquium.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">17:15 Kolloquium ETH-Bibliothek</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/bildarchiv.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">Bildarchiv</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/einzelpw.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">Einzelveranstaltungen (mit PW)</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/historisch.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">Historische Filme und Tonaufzeichnungen</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/max_frisch.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">Max Frisch-Archiv</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    <div class="newsListBox">
+                            <a href="/campus/bibliothek/thomas_mann.html" style="display: block;">
+                                <div class="info">
+
+                                    <div style="float:left; margin-right:5px; overflow: hidden;">
+
+                                        <div style="max-height: 98px; max-width: 98px; height: 98px; width: 98px; overflow: hidden;">
+                                            <img style="max-width: 98px; max-height: 98px;" src="https://ethz.ch/etc/designs/mmp/placeholder.jpg">
+                                                </div>
+
+                                    </div>
+
+                                    <h2 style="overflow:auto;">Thomas-Mann-Archiv</h2>
+										
+									<div class="description">
+                                        </div>
+
+                                    <div class="play">
+                                        More<span class="play-icon"></span>
+                                    </div>
+                                    <div style="clear: both"></div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                    </div>
+            </div>
+<div class="par-after parsys basecomponent"><div class="par-after parsys basecomponent ">
+
+</div>
+</div>
+</section>
+            <!-- END main content -->            
+        </div>        
+        <div class="clear">&nbsp;</div> 
+    </section>
+
+    <!-- footer -->
+    <footer class="container_10" id="footer">
+	<div class="grid_10" id="footerContainer">
+		<div id="footerLinks">
+			<ul>
+						<li><a href="/footer/sitemap.html"> Sitemap</a></li>
+						<li><a href="/footer/imprint.html"> Imprint</a></li>
+						<li><a href="/footer/disclaimer.html"> Disclaimer</a></li>
+						<li><a href="/footer/copyright.html"> Copyright</a></li>
+						</ul>
+				</div>
+		<div id="copyright">
+			<span> &copy; 2022&nbsp;<a href="http://www.ethz.ch/">Eidgen&ouml;ssische
+					Technische Hochschule Z&uuml;rich</a>
+			</span>
+		</div>
+	</div>
+	<div class="clear">&nbsp;</div>
+</footer>
+
+<!-- Print footer -->
+<div class="print" id="printFooter">
+    <div class="printFooterContent">
+        <b>Page URL:</b>
+        https://video.ethz.ch:443/campus/bibliothek.html<br />
+        <b>11.05.2022</b><br />
+        <b> &copy; 2022&nbsp;<a href="http://www.ethz.ch/">Eidgen&ouml;ssische Technische Hochschule Z&uuml;rich</a></b>
+    </div>
+</div><div id="lightboxPlaceHolder"></div>
+    
+    <!--  timings -->    
+    
+
+
+
+
+
+
+
+<!--
+More detailed timing info is available by uncommenting some code in the timing.jsp component
+Timing chart URL:
+http://chart.apis.google.com/chart?chtt=bibliothek.html+%28252155ms%29&cht=bhs&chxt=x&chco=c6d9fd,4d89f9&chbh=a&chds=0,252155,0,252155&chxr=0,0,252155&chd=t:7,7846,10348,10566,11750,12904,15671,15862,16051,17186,175949,177533,178096,178228,178321,209845,210590,210722,212693,212817,214921,215764,217827,218549,243438,244423,245843|2261,5215,135,81,148,153,523,107,139,158627,167,30812,30189,30047,29947,34819,1618,1479,625,497,1501,652,23885,22765,1201,212,6312&chly=handleSecurity|head.jsp|additionalMeta.jsp|init.jsp|title.jsp|defaultScripts.jsp|header.jsp|statusbar.jsp|top.jsp|topnav.jsp|breadcrumb.jsp|leftnav.jsp|basecomponent.jsp|component.jsp|left.jsp|content.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|basecomponent.jsp|component.jsp|footer.jsp&chs=600x500
+-->
+
+<!-- access statistics -->
+    <!-- Access statistics -->
+    <script type="text/javascript">
+    // ==================================================================
+    // 1. Data Layer, fuer jede Seite anders, von AEM befuellt
+    // ==================================================================
+
+    var DataLayer = {
+        od_dcsid:      'dcs222gqy2n1s1s7saewmblr1_1u5v',
+        od_domain:     'statse.webtrendslive.com',
+        op_dcsid:      '',
+        op_domain:     'wtsdc.ethz.ch',
+    
+        wt_fpc_domain: '', // Cookie Domain, default ist .ethz.ch
+    
+        site:          'ETH-Bibliothek', // Site name
+        uri_internal:  'campus/bibliothek', // interne URL nur ab site root (ohne Sprache)
+        oss_term:      '', // gesuchter Begriff
+        oss_results:   '', // Anzahl Resultate fuer oss_results
+        oss_engine:    '', // onsite | ethz (default)  --> WT Parameter abfuellen  
+        oss_lang:      '', // falls Suche auf Sprache gefiltert: Sprache  
+        page_lang:     'en', // Sprache der Seite
+        page_group:    'campus', // Inhaltsgruppe der Seite (Navigation Level 1)
+        page_subgroup: 'bibliothek',  // Inhaltsuntergruppe der Seite (Navigation Level 2)
+        //visit_ext:   '',   // '0' = internal, '1' = external
+    
+        events:        false  // Steuert, ob Events fuer die aktuelle Seite getrackt werden
+    }
+    </script>
+    
+<script src='/js/webtrends.datacollector.js'></script>
+</body>
+</html>
