@@ -1,3 +1,5 @@
+import os.path
+
 import requests as rq
 from lxml import etree
 from lxml.etree import _Element
@@ -5,6 +7,7 @@ import multiprocessing as mp
 from threading import Thread
 from time import sleep
 from queue import Empty
+from sqlite3 import *
 
 
 def is_video(root: _Element) -> bool:
@@ -20,10 +23,15 @@ class ETHIndexer:
     def __init__(self, file: str):
         self.prefixes = ["/campus", "/conferences", "/events", "/speakers", "/lectures"]
         self.file = file
+        make_db = not os.path.exists(file)
+
+        self.sq_con = Connection(file)
+        self.sq_cur = self.sq_con.cursor()
+
+        if make_db:
+            self.init_db()
 
     def index_video_eth(self):
-        urls = []
-
         # load main site
         resp = rq.get("https://www.video.ethz.ch/", headers={"user-agent": "Mozilla Firefox"})
 
@@ -47,10 +55,18 @@ class ETHIndexer:
 
         print("------------------------------------------------------------------------------------------------------------------------\nDONE\n------------------------------------------------------------------------------------------------------------------------")
 
-    def sub_index(self, url: str, prefix: str):
-        self.__sub_index(url, prefix)
+    def init_db(self):
+        self.sq_cur.execute("CREATE TABLE sites "
+                            "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            "parent INTEGER, "
+                            "URL TEXT UNIQUE , "
+                            "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1));")
+        self.sq_cur.execute("INSERT INTO sites (key, parent, URL, IS_VIDEO) VALUES (0, -1, 'https://www.video.ethz.ch', 0)")
 
-    def __sub_index(self, url: str, prefix: str):
+    def sub_index(self, url: str, prefix: str, parent: int = 0):
+        self.__sub_index(url, prefix, parent)
+
+    def __sub_index(self, url: str, prefix: str, parent: int = 0):
         # load main site
         resp = rq.get(url, headers={"user-agent": "Mozilla Firefox"})
 
@@ -64,11 +80,15 @@ class ETHIndexer:
 
         # dump the site to the list of video urls if it matches
         if is_video(tree):
-            with open(self.file, "a") as f:
-                f.write(url)
-                f.write("\n")
+            self.sq_cur.execute("INSERT INTO sites (URL, parent, IS_VIDEO) VALUES "
+                                f"('{url}', {parent}, 1)")
             return
 
+        self.sq_cur.execute("INSERT INTO sites (URL, parent, IS_VIDEO) VALUES "
+                            f"('{url}', {parent}, 0)")
+        self.sq_cur.execute(f"SELECT (key) FROM sites WHERE URL IS '{url}'")
+        query_result = self.sq_cur.fetchall()
+        parent_id = query_result[0][0]
         # find all <a> elements
         for a in x:
             a: _Element
@@ -79,9 +99,10 @@ class ETHIndexer:
 
                 # verify it is on the same branch but not the same uri
                 if (prefix.split(".")[0] in uri) and (prefix != uri):
-                    self.sub_index(f"https://www.video.ethz.ch{uri}", uri)
+                    self.sub_index(f"https://www.video.ethz.ch{uri}", uri, parent_id)
 
         print(f"Done {url}")
+        self.sq_con.commit()
 
     def val_uri(self, url: str) -> bool:
         # it is a valid site
@@ -100,7 +121,7 @@ class ETHIndexer:
         return False
 
 
-class ConcurrentETHIndexer(ETHIndexer):
+class ConcurrentETHIndexer:
     def __init__(self, file: str, prefixes: list = None):
         """
         Initializer for concurrent indexing of entire viedeo.ethz.ch site.
@@ -110,11 +131,29 @@ class ConcurrentETHIndexer(ETHIndexer):
         :param file: output where the video-series urls are stored. (at the time 6460 urls)
         :param prefixes: provide custom prefixes, main_header [campus, lectures, ...]
         """
-        super().__init__(file)
+        self.prefixes = ["/campus", "/conferences", "/events", "/speakers", "/lectures"]
+        self.file = file
+        make_db = not os.path.exists(file)
+
+        self.sq_con = Connection(file)
+        self.sq_cur = self.sq_con.cursor()
+
+        if make_db:
+            self.init_db()
+
         self.to_download_queue = mp.Queue()
-        self.video_url_queue = mp.Queue(maxsize=100)
+        self.found_url_queue = mp.Queue(maxsize=100)
         self.threads = []
         self.index_video_eth()
+
+    def init_db(self):
+        self.sq_cur.execute("CREATE TABLE sites "
+                            "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            "parent INTEGER, "
+                            "URL TEXT UNIQUE , "
+                            "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1));")
+        self.sq_cur.execute("INSERT INTO sites (key, parent, URL, IS_VIDEO) VALUES (0, -1, 'https://www.video.ethz.ch', 0)")
+
 
     def index_video_eth(self):
         """
@@ -170,8 +209,11 @@ class ConcurrentETHIndexer(ETHIndexer):
         # dump the site to the list of video urls if it matches
         if is_video(tree):
             print(f"put {url}")
-            self.video_url_queue.put(url)
+            self.found_url_queue.put({"url": url, "is_video": True})
             return
+
+        else:
+            self.found_url_queue.get({"url": url, "is_video": False})
 
         # find all <a> elements
         for a in x:
@@ -237,7 +279,7 @@ class ConcurrentETHIndexer(ETHIndexer):
                 counter += 1
                 sleep(1)
 
-    def sub_index(self, url: str, prefix: str):
+    def sub_index(self, url: str, prefix: str, parent: int = 0):
         """
         Wrapper for __sub_index function.
 
@@ -253,19 +295,27 @@ class ConcurrentETHIndexer(ETHIndexer):
         Function exits after 10s of an empty queue or when all workers are done.
         :return:
         """
+        parent_ids = {}
 
         # Timeout to prevent endless loop if a subprocesses crash
         counter = 0
         while counter < 10 and self.workers_alive():
-            if not self.video_url_queue.empty():
-                with open(self.file, "a") as f:
-                    while not self.video_url_queue.empty():
-                        f.write(self.video_url_queue.get())
-                        f.write("\n")
+            if not self.found_url_queue.empty():
+                while not self.found_url_queue.empty():
+                    arguments = self.found_url_queue.get()
+                    parent_id = parent_ids.get(arguments["url"])
+
+                    f.write("\n")
                 counter = 0
             else:
                 counter += 1
                 sleep(1)
+
+    def get_parent(self, url: str):
+        self.sq_cur.execute(f"SELECT (key) FROM sites WHERE URL IS '{url}'")
+        query_result = self.sq_cur.fetchall()
+        return query_result[0][0]
+
 
     def workers_alive(self):
         """
