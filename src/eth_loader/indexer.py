@@ -12,6 +12,18 @@ from queue import Empty
 from sqlite3 import *
 
 
+def parent_site(url: str) -> str:
+    snippets = url.split("/")
+    del snippets[-1]
+
+    url = snippets[0]
+    for i in range(1, len(snippets)):
+        url += "/" + snippets[i]
+
+    url += ".html"
+    return url
+
+
 def is_video(root: _Element) -> bool:
     video = root.xpath("//vp-episode-page")
 
@@ -348,11 +360,13 @@ class ConcurrentETHIndexer:
         while one is not None:
             key = one[0]
             url = one[1]
-            parent_id = parent_ids.get(url)
+            parent_url = parent_site(url)
+            parent_id = parent_ids.get(parent_url)
 
             if parent_id is None:
-                parent_id = self.get_parent(url)
-                parent_ids[url] = parent_id
+                parent_id = self.get_parent(parent_url)
+                parent_ids[parent_url] = parent_id
+
             print(f"UPDATE sites SET parent = {parent_id} WHERE key IS {key}")
             self.sq_cur.execute(f"UPDATE sites SET parent = {parent_id} WHERE key IS {key}")
 
@@ -362,6 +376,10 @@ class ConcurrentETHIndexer:
     def get_parent(self, url: str):
         self.sq_cur.execute(f"SELECT (key) FROM sites WHERE URL IS '{url}'")
         query_result = self.sq_cur.fetchall()
+
+        if len(query_result) == 0 or len(query_result[0]) == 0:
+            return -1
+
         return query_result[0][0]
 
     def workers_alive(self):
