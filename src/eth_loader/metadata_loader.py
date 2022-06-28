@@ -3,7 +3,7 @@ import os.path
 import queue
 import time
 import traceback
-
+import datetime
 import requests as rq
 import threading
 from sqlite3 import *
@@ -130,7 +130,8 @@ class EpisodeLoader:
                                 "parent INTEGER, "
                                 "URL TEXT UNIQUE , "
                                 "json TEXT,"
-                                "series INTEGER CHECK (series >= 0 AND series <= 1))")
+                                "series INTEGER CHECK (series >= 0 AND series <= 1),"
+                                "found TEXT)")
 
     def cleanup(self):
         """
@@ -209,7 +210,8 @@ class EpisodeLoader:
                     content = res["content"].replace("'", "''")
 
                     if res["status"] == 200:
-                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series) VALUES ({parent_id}, '{url}', '{content}', 1)")
+                        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{content}', 1, {now})")
                     else:
                         print(f"Failed to download {url} with status code {res['status']}")
                         e_counter += 1

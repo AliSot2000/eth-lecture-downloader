@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import sqlite3
 
@@ -180,8 +181,10 @@ class ConcurrentETHIndexer:
                             "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
                             "parent INTEGER, "
                             "URL TEXT UNIQUE , "
-                            "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1));")
-        self.sq_cur.execute("INSERT INTO sites (key, parent, URL, IS_VIDEO) VALUES (0, -1, 'https://www.video.ethz.ch', 0)")
+                            "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1),"
+                            "found TEXT);")
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.sq_cur.execute(f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found) VALUES (0, -1, 'https://www.video.ethz.ch', 0, {now})")
         print("Table Created")
 
     def index_video_eth(self):
@@ -339,8 +342,9 @@ class ConcurrentETHIndexer:
                     a_video = arguments["is_video"]
 
                     try:
-                        self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO) VALUES "
-                                            f"('{url}', {a_video})")
+                        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
+                                            f"('{url}', {a_video}, {now})")
                         self.sq_con.commit()
 
                     except sqlite3.IntegrityError:
