@@ -36,7 +36,7 @@ def retrieve_metadata(website_url: str, identifier: str, headers: dict, parent_i
     if result.ok:
         content = result.content.decode("utf-8")
     else:
-        print(f"{identifier} error {result.status_code}")
+        print(f"{identifier:.02} error {result.status_code}")
 
     # only everything after .com or something
     path = url.split("/", 3)[3]
@@ -128,9 +128,10 @@ class EpisodeLoader:
             self.sq_cur.execute("CREATE TABLE metadata "
                                 "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
                                 "parent INTEGER, "
-                                "URL TEXT UNIQUE , "
+                                "URL TEXT , "
                                 "json TEXT,"
                                 "series INTEGER CHECK (series >= 0 AND series <= 1),"
+                                "deprecated INTEGER DEFAULT 0 CHECK (series >= 0 AND series <= 1),"
                                 "found TEXT)")
 
     def cleanup(self):
@@ -151,7 +152,7 @@ class EpisodeLoader:
         or the entire metadata is stored inside the target file. **WARNING the target file WILL be overwritten**
 
         :param workers: number of worker threads to run concurrently
-        :return:
+        :return:series
         """
         self.enqueue_th(workers)
         self.check_result()
@@ -210,8 +211,7 @@ class EpisodeLoader:
                     content = res["content"].replace("'", "''")
 
                     if res["status"] == 200:
-                        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{content}', 1, '{now}')")
+                        self.insert_update_db(parent_id=parent_id, url=url, json=content)
                     else:
                         print(f"Failed to download {url} with status code {res['status']}")
                         e_counter += 1
@@ -228,3 +228,31 @@ class EpisodeLoader:
                 ctr += 1
 
         print(f"Downloaded {g_counter} with {e_counter} errors.")
+
+    def insert_update_db(self, parent_id: int, url: str, json: str):
+        # exists:
+        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND series = 1 AND deprecated = 0")
+
+        # it exists, abort
+        if self.sq_cur.fetchone() is not None:
+            print("Found active in db")
+            return
+
+        # exists but is deprecated
+        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND series = 1 AND deprecated = 1")
+
+        result = self.sq_cur.fetchone()
+        if result is not None:
+
+            print("Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
+
+            # update all entries, to deprecated, unset deprecated where it is here
+            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE parent = {parent_id} AND URL = {url} AND series = 1")
+            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 0 WHERE key = {result}")
+            return
+
+        # doesn't exist -> insert
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print("Inserting")
+        self.sq_cur.execute(
+            f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{json}', 1, '{now}')")
