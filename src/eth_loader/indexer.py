@@ -343,9 +343,10 @@ class ConcurrentETHIndexer:
 
                     try:
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
-                                            f"('{url}', {a_video}, '{now}')")
-                        self.sq_con.commit()
+                        if self.not_in_db(url):
+                            self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
+                                                f"('{url}', {a_video}, '{now}')")
+                            self.sq_con.commit()
 
                     except sqlite3.IntegrityError:
                         print(traceback.format_exc())
@@ -354,6 +355,10 @@ class ConcurrentETHIndexer:
             else:
                 counter += 1
                 sleep(1)
+
+    def not_in_db(self, url):
+        self.sq_cur.execute(f"SELECT key FROM sites WHERE URL = {url}")
+        return self.sq_cur.fetchone() is None
 
     def gen_parent(self):
         parent_ids = {}
