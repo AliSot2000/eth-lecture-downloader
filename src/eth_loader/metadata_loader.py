@@ -130,8 +130,7 @@ class EpisodeLoader:
                                 "parent INTEGER, "
                                 "URL TEXT , "
                                 "json TEXT,"
-                                "series INTEGER CHECK (series >= 0 AND series <= 1),"
-                                "deprecated INTEGER DEFAULT 0 CHECK (series >= 0 AND series <= 1),"
+                                "deprecated INTEGER DEFAULT 0 CHECK (metadata.deprecated >= 0 AND metadata.deprecated <= 1),"
                                 "found TEXT)")
 
     def cleanup(self):
@@ -231,7 +230,7 @@ class EpisodeLoader:
 
     def insert_update_db(self, parent_id: int, url: str, json: str):
         # exists:
-        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND series = 1 AND deprecated = 0")
+        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 0")
 
         # it exists, abort
         if self.sq_cur.fetchone() is not None:
@@ -239,7 +238,7 @@ class EpisodeLoader:
             return
 
         # exists but is deprecated
-        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND series = 1 AND deprecated = 1")
+        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 1")
 
         result = self.sq_cur.fetchone()
         if result is not None:
@@ -247,7 +246,7 @@ class EpisodeLoader:
             print("Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
 
             # update all entries, to deprecated, unset deprecated where it is here
-            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE parent = {parent_id} AND URL = {url} AND series = 1")
+            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE parent = {parent_id} AND URL = {url}")
             self.sq_cur.execute(f"UPDATE metadata SET deprecated = 0 WHERE key = {result}")
             return
 
@@ -255,4 +254,4 @@ class EpisodeLoader:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print("Inserting")
         self.sq_cur.execute(
-            f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{json}', 1, '{now}')")
+            f"INSERT INTO metadata (parent, URL, json, found) VALUES ({parent_id}, '{url}', '{json}', '{now}')")
