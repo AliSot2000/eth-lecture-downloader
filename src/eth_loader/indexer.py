@@ -231,6 +231,7 @@ class ConcurrentETHIndexer:
         :return:
         """
         # Timeout to prevent endless loop if a subprocesses crash
+        insert_counter = 0
         counter = 0
         while counter < 10 and self.workers_alive():
             if not self.found_url_queue.empty():
@@ -245,6 +246,9 @@ class ConcurrentETHIndexer:
                             self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
                                                 f"('{url}', {a_video}, '{now}')")
                             self.sq_con.commit()
+                            insert_counter += 1
+                        else:
+                            print("Already in db")
 
                     except sqlite3.IntegrityError:
                         print(traceback.format_exc())
@@ -253,9 +257,10 @@ class ConcurrentETHIndexer:
             else:
                 counter += 1
                 sleep(1)
+        print(f"Inserted {insert_counter} entries in sites table")
 
     def not_in_db(self, url):
-        self.sq_cur.execute(f"SELECT key FROM sites WHERE URL = {url}")
+        self.sq_cur.execute(f"SELECT key FROM sites WHERE URL = '{url}'")
         return self.sq_cur.fetchone() is None
 
     def gen_parent(self):
