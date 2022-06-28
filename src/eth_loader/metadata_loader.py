@@ -3,7 +3,7 @@ import os.path
 import queue
 import time
 import traceback
-import datetime
+
 import requests as rq
 import threading
 from sqlite3 import *
@@ -23,8 +23,7 @@ def retrieve_metadata(website_url: str, identifier: str, headers: dict, parent_i
     it will try to download it anyway. The function shouldn't fail except if the site doesn't exist.
 
     :param website_url: url to download eg. /category/subcategory/year/season/lecture_id.html
-    :param identifier: str for thread to give i/home/alisot2000/Documents/01 ReposNCode/ETH-Lecture-Loadernformation
-    where the download was executed in case of an error.
+    :param identifier: str for thread to give i/home/alisot2000/Documents/01 ReposNCode/ETH-Lecture-Loadernformation where the download was executed in case of an error.
     :param headers: dict to be passed to the request library. Download will fail if no user-agent is provided.
     """
 
@@ -37,7 +36,7 @@ def retrieve_metadata(website_url: str, identifier: str, headers: dict, parent_i
     if result.ok:
         content = result.content.decode("utf-8")
     else:
-        print(f"{identifier:.02} error {result.status_code}")
+        print(f"{identifier} error {result.status_code}")
 
     # only everything after .com or something
     path = url.split("/", 3)[3]
@@ -117,23 +116,21 @@ class EpisodeLoader:
         self.urls = self.sq_cur.fetchall()
 
     def verify_args_table(self):
-        self.sq_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sites'")
+        self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='sites'")
 
         if self.sq_cur.fetchone() is None:
             raise ValueError("didn't find the 'sites' table inside the given database.")
 
     def check_results_table(self):
-        self.sq_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='metadata'")
+        self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='metadata'")
 
         if self.sq_cur.fetchone() is None:
             self.sq_cur.execute("CREATE TABLE metadata "
                                 "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
                                 "parent INTEGER, "
-                                "URL TEXT , "
+                                "URL TEXT UNIQUE , "
                                 "json TEXT,"
-                                "deprecated INTEGER DEFAULT 0 CHECK (metadata.deprecated >= 0 AND metadata.deprecated <= 1),"
-                                "found TEXT,"
-                                "last_seen TEXT)")
+                                "series INTEGER CHECK (series >= 0 AND series <= 1))")
 
     def cleanup(self):
         """
@@ -153,7 +150,7 @@ class EpisodeLoader:
         or the entire metadata is stored inside the target file. **WARNING the target file WILL be overwritten**
 
         :param workers: number of worker threads to run concurrently
-        :return:series
+        :return:
         """
         self.enqueue_th(workers)
         self.check_result()
@@ -162,12 +159,6 @@ class EpisodeLoader:
         print("DOWNLOAD DONE")
 
     def spawn(self, workers: int):
-        """
-        Spawns the worker threads using threading package.
-
-        :param workers: number of workers to spawn.
-        :return:
-        """
         # generate arguments for the worker threads
         commands = [(i, self.command_queue, self.result_queue,) for i in range(workers)]
         threads = []
@@ -209,7 +200,6 @@ class EpisodeLoader:
         e_counter = 0
 
         ctr = 0
-        res = {"url": "Empty", "content": "empty"}
         while ctr < 20:
             if not self.result_queue.empty():
                 try:
@@ -219,7 +209,7 @@ class EpisodeLoader:
                     content = res["content"].replace("'", "''")
 
                     if res["status"] == 200:
-                        self.insert_update_db(parent_id=parent_id, url=url, json=content)
+                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series) VALUES ({parent_id}, '{url}', '{content}', 1)")
                     else:
                         print(f"Failed to download {url} with status code {res['status']}")
                         e_counter += 1
@@ -236,89 +226,3 @@ class EpisodeLoader:
                 ctr += 1
 
         print(f"Downloaded {g_counter} with {e_counter} errors.")
-
-    def insert_update_db(self, parent_id: int, url: str, json: str):
-        """
-        Insert into db if new, update if exists and check deprecation status.
-
-        :param parent_id: id of the parent site in the sites table
-        :param url: url of the metadata
-        :param json: json stored at metadata url
-        :return:
-        """
-        # exists:
-        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 0")
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # it exists, abort
-        result = self.sq_cur.fetchone()
-        if result is not None:
-            print(f"Found {url} active in db")
-
-            self.sq_cur.execute(f"UPDATE metadata SET last_seen = '{now}' WHERE key = {result[0]}")
-            return
-
-        # exists but is deprecated
-        self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 1")
-
-        result = self.sq_cur.fetchone()
-        if result is not None:
-
-            print(f"Found {url} inactive in db, reacivate and set everything else matching parent, "
-                  f"url and series to deprecated")
-            # update all entries, to deprecated, unset deprecated where it is here
-            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE parent = {parent_id} AND URL = {url}")
-            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 0, last_seen = '{now}' WHERE key = {result}")
-            return
-
-        # doesn't exist -> insert
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print("Inserting")
-        self.sq_cur.execute(
-            f"INSERT INTO metadata (parent, URL, json, found, last_seen) VALUES "
-            f"({parent_id}, '{url}', '{json}', '{now}', '{now}')")
-
-    def deprecate(self, dt: datetime.datetime):
-        """
-        Go through all entries of table. Make sure the parent has a last_seen newer than dt. If not, set deprecated to
-        true.
-
-        :param dt: limit before which a site is deemed to be deprecated.
-        :return:
-        """
-
-        self.sq_cur.execute("SELECT key, parent FROM metadata ORDER BY key ASC")
-        row = self.sq_cur.fetchone()
-
-        # key empty, nothing to see.
-        if row is None:
-            print("Nothing in metadata table")
-            return
-
-        while row is not None:
-            self.sq_cur.execute(f"SELECT last_seen FROM sites WHERE key = {row[1]}")
-            par = self.sq_cur.fetchone()
-
-            # Parent doesn't exist?!?
-            if par is None:
-                self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE key = {row[0]}")
-                print(f"Parent {row[1]} doesn't exist")
-
-                # update the row and continue the loop.
-                self.sq_cur.execute(f"SELECT key, parent FROM metadata WHERE key > {row[0]}")
-                row = self.sq_cur.fetchone()
-                continue
-
-            assert type(par[0]) is str, f"Type of last_seen not string but {type(par[0]).__name__}"
-            par_dt = datetime.datetime.strptime(par[0], "%Y-%m-%d %H:%M:%S")
-
-            # par_dt before dt, update the deprecation
-            if (par_dt - dt).total_seconds() < 0:
-                self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE key = {row[0]}")
-                print(f"Deprecated {row[0]}")
-
-            # update the row and continue the loop.
-            self.sq_cur.execute(f"SELECT key, parent FROM metadata WHERE key > {row[0]}")
-            row = self.sq_cur.fetchone()
-
-        self.sq_con.commit()
