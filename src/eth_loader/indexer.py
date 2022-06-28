@@ -184,7 +184,7 @@ class ConcurrentETHIndexer:
                             "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1),"
                             "found TEXT);")
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.sq_cur.execute(f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found) VALUES (0, -1, 'https://www.video.ethz.ch', 0, {now})")
+        self.sq_cur.execute(f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found) VALUES (0, -1, 'https://www.video.ethz.ch', 0, '{now}')")
         print("Table Created")
 
     def index_video_eth(self):
@@ -344,7 +344,7 @@ class ConcurrentETHIndexer:
                     try:
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
-                                            f"('{url}', {a_video}, {now})")
+                                            f"('{url}', {a_video}, '{now}')")
                         self.sq_con.commit()
 
                     except sqlite3.IntegrityError:

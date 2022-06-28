@@ -211,7 +211,7 @@ class EpisodeLoader:
 
                     if res["status"] == 200:
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{content}', 1, {now})")
+                        self.sq_cur.execute(f"INSERT INTO metadata (parent, URL, json, series, found) VALUES ({parent_id}, '{url}', '{content}', 1, '{now}')")
                     else:
                         print(f"Failed to download {url} with status code {res['status']}")
                         e_counter += 1
