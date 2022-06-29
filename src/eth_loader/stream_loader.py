@@ -6,15 +6,12 @@ import multiprocessing as mp
 import queue
 import time
 import pickle
-from threading import Thread
+from multiprocessing import Process
 import json
 from dataclasses import dataclass
 from typing import List
 from sqlite3 import *
 import datetime
-
-# gro-21w
-# fG9LdsA
 
 
 def get_stream(website_url: str, identifier: str, headers: dict, cookies: bytes, parent_id: int) -> dict:
@@ -131,7 +128,7 @@ class BetterStreamLoader:
         self.sq_con = Connection(self.db_path)
         self.sq_cur = self.sq_con.cursor()
 
-        self.get_episode_urls()
+        self.verify_args_table()
         self.check_results_table()
 
         if spec_login is not None:
@@ -156,11 +153,18 @@ class BetterStreamLoader:
         self.result_queue = mp.Queue()
         self.command_queue = mp.Queue()
         self.nod = len(self.download_list)
-        print(f"TODO: {self.nod}")
-        time.sleep(10)
 
         self.general_cookie = None
         self.login(user_name, password)
+
+        # counters
+        self.episode_insert_counter = 0
+        self.episode_deprecated_counter = 0
+        self.episode_active_counter = 0
+
+        self.streams_insert_counter = 0
+        self.streams_deprecated_counter = 0
+        self.streams_active_counter = 0
 
     def get_episode_urls(self):
         self.verify_args_table()
@@ -194,7 +198,7 @@ class BetterStreamLoader:
                     ep_id = ep.get("id")
 
                     if ep_id is None:
-                        print(f"Failed to generate id with Content:\n{content_default}")
+                        print(f"Failed to find id with Content:\n{content_default}")
                         continue
 
                     # parent url without file extension
@@ -209,6 +213,10 @@ class BetterStreamLoader:
                 print(f"No episodes found {parent_url}")
 
             row = self.sq_cur.fetchone()
+
+        self.nod = len(self.download_list)
+        print(f"TODO: {self.nod}")
+        time.sleep(10)
 
     def verify_args_table(self):
         self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='metadata'")
@@ -253,13 +261,15 @@ class BetterStreamLoader:
 
         self.workers = []
         for i in range(threads):
-            t = Thread(target=handler, args=(i, self.command_queue, self.result_queue))
+            t = Process(target=handler, args=(i, self.command_queue, self.result_queue))
             t.start()
             self.workers.append(t)
 
         print("Workers Spawned")
 
     def initiator(self, workers: int = 100):
+        self.reset_counters()
+        self.get_episode_urls()
         self.spawn(workers)
         self.enqueue_job()
         self.dequeue_job()
@@ -270,6 +280,15 @@ class BetterStreamLoader:
 
         self.cleanup()
         self.sq_con.commit()
+
+        print("Statistics:")
+        print("Episodes:")
+        print(f"Inserted: {self.episode_insert_counter}, Updated: {self.episode_deprecated_counter}, "
+              f"Active: {self.episode_active_counter}")
+        print("Streams:")
+        print(f"Inserted: {self.streams_insert_counter}, Updated: {self.streams_deprecated_counter}, "
+              f"Active: {self.streams_active_counter}")
+
         self.deprecate_streams()
         self.sq_con.commit()
         print("DONE")
@@ -279,9 +298,15 @@ class BetterStreamLoader:
         Waits for all worker processes to terminate and then joins them.
         :return:
         """
+        counter = 0
         for worker in self.workers:
-            worker: Thread
-            worker.join(10)
+            worker: Process
+            try:
+                worker.join(10)
+            except mp.TimeoutError:
+                worker.kill()
+            counter += 1
+            print(f"Stopped {counter} threads")
 
     def workers_alive(self):
         """
@@ -289,7 +314,7 @@ class BetterStreamLoader:
         :return:
         """
         for worker in self.workers:
-            worker: Thread
+            worker: Process
             if worker.is_alive():
                 return True
 
@@ -380,6 +405,7 @@ class BetterStreamLoader:
 
     def dequeue_job(self):
         ctr = 0
+        download_counter = 0
         while ctr < 20:
             if not self.result_queue.empty():
                 try:
@@ -388,8 +414,12 @@ class BetterStreamLoader:
                         content = res["content"].replace("'", "''")
 
                         self.insert_update_episodes(parent_id=res["parent_id"], url=res["url"], json_str=content, raw_content=res["content"])
+                        download_counter += 1
+                        if download_counter % 100 == 0:
+                            print(f"Downloaded so far {download_counter}")
                     else:
                         print(f"url {res['url']} with status code {res['status']}")
+                        self.sq_con.commit()
                     ctr = 0
                 except Exception as e:
                     print(traceback.format_exc())
@@ -397,6 +427,8 @@ class BetterStreamLoader:
             else:
                 time.sleep(1)
                 ctr += 1
+
+        print("Dequeue done")
 
     def insert_update_episodes(self, parent_id: int, url: str, json_str: str, raw_content: str):
         try:
@@ -446,6 +478,7 @@ class BetterStreamLoader:
         # it exists, abort
         if self.sq_cur.fetchone() is not None:
             print("Found active in db")
+            self.episode_active_counter += 1
             return
 
         # exists but is deprecated
@@ -459,6 +492,7 @@ class BetterStreamLoader:
 
         result = self.sq_cur.fetchone()
         if result is not None:
+            self.episode_deprecated_counter += 1
             print(
                 "Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
 
@@ -471,6 +505,7 @@ class BetterStreamLoader:
         # doesn't exist -> insert
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print("Inserting")
+        self.episode_insert_counter += 1
         self.sq_cur.execute(
             f"INSERT INTO episodes (parent, URL, json, found, streams) VALUES ({parent_id}, '{url}', '{json_str}', '{now}', '{stream_string}')")
 
@@ -482,6 +517,7 @@ class BetterStreamLoader:
         # it exists, abort
         key = self.sq_cur.fetchone()
         if key is not None:
+            self.streams_active_counter += 1
             print("Found active in db")
             return key
 
@@ -491,6 +527,7 @@ class BetterStreamLoader:
 
         result = self.sq_cur.fetchone()
         if result is not None:
+            self.streams_deprecated_counter += 1
             print(
                 "Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
 
@@ -501,6 +538,7 @@ class BetterStreamLoader:
         # doesn't exist -> insert
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print("Inserting")
+        self.streams_insert_counter += 1
         self.sq_cur.execute(
             f"INSERT INTO streams (URL, resolution, found) VALUES ('{url}', '{resolution}', '{now}')")
 
@@ -509,17 +547,41 @@ class BetterStreamLoader:
         return self.sq_cur.fetchone()
 
     def deprecate_streams(self):
-        self.sq_cur.execute("SELECT key FROM streams WHERE deprecated = 0")
+        self.sq_cur.execute("SELECT COUNT(url) FROM streams WHERE deprecated = 0")
+        total = self.sq_cur.fetchone()[0]
+        print(total)
 
-        row = self.sq_cur.fetchone()
-        while row is not None:
+        # fetch all is way faster. It might be important in the future that this process is split into multiple
+        # subprocesses each with it's one database to search. This is simply the case since the ram required is rather
+        # large
+
+        self.sq_cur.execute("SELECT key FROM streams WHERE deprecated = 0")
+        rows = self.sq_cur.fetchall()
+        count = 0
+        dep_count = 0
+
+        for row in rows:
             key = row[0]
+            count += 1
 
             self.sq_cur.execute(f"SELECT key FROM episodes WHERE streams LIKE '%{key}%'")
 
             if self.sq_cur.fetchone() is None:
                 print(f"Deprecating entry: {key}")
                 self.sq_cur.execute(f"UPDATE streams SET deprecated = 1 WHERE key = {key}")
+                dep_count += 1
 
-            self.sq_cur.execute("SELECT key FROM streams WHERE deprecated = 0")
-            row = self.sq_cur.fetchone()
+            if count % 1000:
+                print(f"Done with {(count * 100.0 / total):.2f}%")
+
+        print(f"Deprecated {dep_count} entries")
+        print("Done deprecating")
+
+    def reset_counters(self):
+        self.episode_deprecated_counter = 0
+        self.episode_insert_counter = 0
+        self.episode_active_counter = 0
+
+        self.streams_deprecated_counter = 0
+        self.streams_insert_counter = 0
+        self.streams_active_counter = 0
