@@ -278,3 +278,4 @@ while counter < 3600 and t_counter < 2:
 
 gpu.kill()
 cpu.kill()
+print("Processes killed, compleately done")
