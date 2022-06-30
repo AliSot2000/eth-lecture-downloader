@@ -4,6 +4,7 @@ import requests as rq
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 import multiprocessing as mp
+import threading as th
 import queue
 import time
 from secrets import username, password, arguments, download_directory
@@ -51,8 +52,10 @@ def target_loader(command: dict):
 
 
 def get_cmd_list():
-    return ['HandBrakeCLI', '-v', '5', '--json', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
-                '-l', '1080', '--keep-display-aspect', '-e', 'nvenc_h264']
+    # return ['HandBrakeCLI', '-v', '5', '--json', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
+    #             '-l', '1080', '--keep-display-aspect']
+    return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
+                '-l', '1080', '--keep-display-aspect']
 
 
 to_download = []
@@ -195,9 +198,16 @@ def compress_cpu(command: CompressionArgument):
 
     while True:
         # Do something else
+        output = proc.stdout.read()
+        print(output)
+
         return_code = proc.poll()
         if return_code is not None:
             print('RETURN CODE', return_code)
+
+            output = proc.stdout.read()
+            print(output)
+
             break
 
     if command.keep_original is False:
@@ -252,8 +262,8 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
 
 
 resq = mp.Queue()
-cpu = mp.Process(target=handler, args=(0, to_compress, resq, compress_cpu))
-gpu = mp.Process(target=handler, args=(0, to_compress, resq, compress_gpu))
+cpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_cpu))
+gpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_gpu))
 
 cpu.start()
 gpu.start()
@@ -265,7 +275,7 @@ while counter < 3600 and t_counter < 2:
     time.sleep(1)
 
     if not resq.empty():
-        res = resq.get()
+        res = resq.get(block=False)
         if res == "EXCEPTION":
             exit(1)
         elif res == "TERMINATED":
@@ -276,6 +286,6 @@ while counter < 3600 and t_counter < 2:
             print(res)
             counter = 0
 
-gpu.kill()
-cpu.kill()
-print("Processes killed, compleately done")
+gpu.join()
+cpu.join()
+print("Processes killed, completely done")
