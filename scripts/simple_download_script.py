@@ -8,7 +8,10 @@ import threading as th
 import queue
 import time
 from secrets import username, password, arguments, download_directory
+import datetime
 
+
+start = datetime.datetime.now()
 session = rq.session()
 
 
@@ -289,3 +292,5 @@ while counter < 3600 and t_counter < 2:
 gpu.join()
 cpu.join()
 print("Processes killed, completely done")
+stop = datetime.datetime.now()
+print(f"It took {(stop - start).total_seconds()}")
