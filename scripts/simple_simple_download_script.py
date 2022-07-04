@@ -42,7 +42,7 @@ def target_loader(command: dict):
     path = command["path"]
     print(f"downloading {url}\n"
           f"to {path}")
-    stream = rq.get(maxq_url["url"], headers={"user-agent": "Firefox"})
+    stream = rq.get(url, headers={"user-agent": "Firefox"})
     if stream.ok:
         with open(path, "wb") as file:
             file.write(stream.content)
@@ -118,12 +118,14 @@ for argu in arguments:
 for d in to_download:
     print(d)
 
+
 tp = ThreadPoolExecutor(max_workers=5)
 result = tp.map(target_loader, to_download)
 
 for r in result:
     print(r)
 
+exit(100)
 to_compress = mp.Queue()
 
 # perform compression
