@@ -45,13 +45,16 @@ def target_loader(command: dict):
     path = command["path"]
     print(f"downloading {url}\n"
           f"to {path}")
-    stream = rq.get(maxq_url["url"], headers={"user-agent": "Firefox"})
+
+    stream = rq.get(url, headers={"user-agent": "Firefox"})
     if stream.ok:
         with open(path, "wb") as file:
             file.write(stream.content)
 
         print(f"Done {os.path.join(folder, f'{date}.mp4')}")
         return "success"
+    else:
+        return command
 
 
 def get_cmd_list():
@@ -123,11 +126,14 @@ for argu in arguments:
 for d in to_download:
     print(d)
 
-tp = ThreadPoolExecutor(max_workers=5)
+# tp = ThreadPoolExecutor(max_workers=5)
+tp = ThreadPoolExecutor(max_workers=2)
 result = tp.map(target_loader, to_download)
 
 for r in result:
     print(r)
+
+exit(100)
 
 to_compress = mp.Queue()
 
@@ -267,9 +273,11 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
 resq = mp.Queue()
 cpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_cpu))
 gpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_gpu))
+gpu2 = th.Thread(target=handler, args=(0, to_compress, resq, compress_gpu))
 
 cpu.start()
 gpu.start()
+gpu2.start()
 
 counter = 0
 t_counter = 0
@@ -289,6 +297,7 @@ while counter < 3600 and t_counter < 2:
             print(res)
             counter = 0
 
+gpu2.join()
 gpu.join()
 cpu.join()
 print("Processes killed, completely done")
