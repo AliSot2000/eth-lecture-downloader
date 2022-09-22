@@ -46,8 +46,8 @@ def get_stream(website_url: str, identifier: str, headers: dict, cookies: bytes,
     if result.ok:
         content = result.content.decode("utf-8")
     else:
+        # TODO: logging and debug shit
         print(f"{identifier} error {result.status_code}")
-
 
     return {"url": url,  "status": result.status_code, "content": content, "parent_id": parent_id}
 
@@ -62,6 +62,7 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue):
     :param result_queue: Queue to put the results in. Handled in main thread.
     :return:
     """
+    # TODO: logging and debug shit
     print("Starting")
     ctr = 0
     while ctr < 20:
@@ -79,10 +80,17 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue):
                             parent_id=arguments["parent_id"])
 
         result_queue.put(result)
+    # TODO: logging and debug shit
     print(f"{worker_nr} Terminated")
 
 
+# DEPRECATED
 def folder_builder(root_folder: str) -> list:
+    """
+    Builds the site structure from folderpaths.
+    :param root_folder:
+    :return:
+    """
     files = []
     sub_dirs = []
 
@@ -94,6 +102,7 @@ def folder_builder(root_folder: str) -> list:
         elif os.path.isfile(os.path.join(root_folder, dof)):
             files.append(os.path.join(root_folder, dof))
         else:
+            # TODO: logging and debug shit
             print(f"Couldn't assign {os.path.join(root_folder, dof)}")
 
     for subdir in sub_dirs:
@@ -122,8 +131,19 @@ class EpisodeEntry:
 
 
 class BetterStreamLoader:
+    """
+    Class loads all stream file urls for the given database.
+    """
     def __init__(self, db: str, user_name: str = None, password: str = None,
                  spec_login: List[SpecLogin] = None):
+
+        """
+
+        :param db:
+        :param user_name:
+        :param password:
+        :param spec_login:
+        """
 
         self.db_path = os.path.abspath(db)
         self.download_list = []
@@ -155,7 +175,10 @@ class BetterStreamLoader:
 
         self.result_queue = mp.Queue()
         self.command_queue = mp.Queue()
+
         self.nod = len(self.download_list)
+
+        # TODO: logger and debug shit
         print(f"TODO: {self.nod}")
         time.sleep(10)
 
@@ -163,37 +186,61 @@ class BetterStreamLoader:
         self.login(user_name, password)
 
     def get_episode_urls(self):
+        """
+        Retrieves the urls for all episodes from the metadata (series-metadata.json of first episode) table.
+        Puts them into the download_list.
+        :return:
+        """
+        # verify existence of source table
         self.verify_args_table()
-        self.sq_cur.execute("SELECT key, json, URL FROM metadata WHERE deprecated = 0")
 
+        # select first entry
+        self.sq_cur.execute("SELECT key, json, URL FROM metadata WHERE deprecated = 0")
         row = self.sq_cur.fetchone()
+
         while row is not None:
-            content = row[1]
             parent_id = row[0]
+            content = row[1]
             parent_url = row[2]
+
+            # why was this again important?
             content_default = content.replace("''", "'")
+
+            # cannot process a html site. We skip this entry.
             if "<!DOCTYPE html>" in content_default:
+
+                # TODO: logging and debug shit
                 print(f"Found an html site: {parent_url}")
+
                 row = self.sq_cur.fetchone()
                 continue
 
+            # try to retrieve the json information. from the content.
             try:
                 result = json.loads(content_default)
             except json.JSONDecodeError:
+                # TODO: logging and debug shit
                 print(traceback.format_exc())
                 print(content_default)
                 print(parent_url)
+
                 row = self.sq_cur.fetchone()
                 continue
 
+            # continue with the dict
             result: dict
+
+            # verify existence of episodes key
             if result.get("episodes") is not None:
                 episodes = result.get("episodes")
 
+                # iterate over episodes.
                 for ep in episodes:
                     ep_id = ep.get("id")
 
+                    # verify existence of episode id.
                     if ep_id is None:
+                        # TODO: logging and debug shit
                         print(f"Failed to generate id with Content:\n{content_default}")
                         continue
 
@@ -203,22 +250,37 @@ class BetterStreamLoader:
                     # episode url with file extension
                     ep_url = f"{strip_url}/{ep_id}.series-metadata.json"
 
-                    self.download_list.append(EpisodeEntry(parent_id=parent_id, series_url=parent_url, episode_url=ep_url))
+                    self.download_list.append(EpisodeEntry(parent_id=parent_id, series_url=parent_url,
+                                                           episode_url=ep_url))
 
             else:
+                # TODO: logging and debug shit
                 print(f"No episodes found {parent_url}")
 
             row = self.sq_cur.fetchone()
 
     def verify_args_table(self):
+        """
+        Verifies a Table exists inside the given sqlite database.
+        :return:
+        """
+
+        # TODO: Verify columns and type match
+
         self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='metadata'")
 
         if self.sq_cur.fetchone() is None:
             raise ValueError("didn't find the 'sites' table inside the given database.")
 
     def check_results_table(self):
+        """
+        Checks if the tables for the results exist already in the database and otherwise creates the tables.
+        :return:
+        """
+        # check if the episodes table exists already.
         self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='episodes'")
 
+        # if it doesn't exist, create a results table.
         if self.sq_cur.fetchone() is None:
             self.sq_cur.execute("CREATE TABLE episodes "
                                 "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -229,8 +291,10 @@ class BetterStreamLoader:
                                 "found TEXT,"
                                 "streams TEXT)")
 
+        # check that the streams table exists
         self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='streams'")
 
+        # create the table if it doesn't exist.
         if self.sq_cur.fetchone() is None:
             self.sq_cur.execute("CREATE TABLE streams "
                                 "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -243,7 +307,7 @@ class BetterStreamLoader:
 
     def spawn(self, threads: int = 100):
         """
-        Spawns worker theads.
+        Spawns worker threads.
 
         :param threads: number of threads to spawn 1-10000
         :return:
@@ -260,6 +324,13 @@ class BetterStreamLoader:
         print("Workers Spawned")
 
     def initiator(self, workers: int = 100):
+        """
+        Runs the entire job basically. Starts all threads, retrieves all values, stores the database and does the
+        clenaup.
+
+        :param workers: number of workers in parallel.
+        :return:
+        """
         self.spawn(workers)
         self.enqueue_job()
         self.dequeue_job()
@@ -299,12 +370,12 @@ class BetterStreamLoader:
         """
         Retrieves the login cookie to access LDAP restricted recordings.
 
-
         :param usr: ETH LDAP Username
         :param pw: ETH LDAP Password
         :return:
         """
         if pw is None or usr is None:
+            # TODO: logging and debug shit
             print("No Credentials")
             return
 
@@ -317,9 +388,11 @@ class BetterStreamLoader:
             self.general_cookie = login.cookies
 
         elif login.status_code == 403:
+            # TODO: logging and debug shit
             print("Wrong Credentials")
 
         else:
+            # TODO: logging and debug shit
             print(login.status_code)
             print(vars(login))
 
@@ -327,10 +400,10 @@ class BetterStreamLoader:
         """
         Provide the url as the series-metadata or html for the course site
 
-        :param other_cookies:
-        :param pw:
-        :param usr:
-        :param strip_url:
+        :param other_cookies: other cookies to be joined with the selected cookie (so both login information is sent)
+        :param pw: password for the specific login
+        :param usr: username for the specific login
+        :param strip_url: url where to perform the specific login
         :return:
         """
         strip_url = strip_url.replace("www.", "")
@@ -347,11 +420,22 @@ class BetterStreamLoader:
 
             return cj
         else:
+            # TODO: logging and debug shit
             print(login.status_code)
             print(vars(login))
             return self.general_cookie
 
     def enqueue_job(self):
+        """
+        Enqueues all episodes in the download_list.
+
+        It verifies that url of the series or the episode itself is not in
+        the spec_login list.
+
+        If it is, it performs the login for the specific episode or series and adds the cookie
+        authentication to the command for the downloaders.
+        :return:
+        """
         for dl in self.download_list:
             dl: EpisodeEntry
             cookie = self.general_cookie
@@ -379,59 +463,104 @@ class BetterStreamLoader:
             self.command_queue.put({"url": dl.episode_url, "cookie-jar": cookie_jar, "parent_id": dl.parent_id})
 
     def dequeue_job(self):
+        """
+        Dequeues the results from the results queue. It then stores the results in the results table.
+        :return:
+        """
+        # counter to prevent infinite loop
         ctr = 0
         while ctr < 20:
+            # dequeue
             if not self.result_queue.empty():
                 try:
                     res = self.result_queue.get()
+
+                    # verify the correct download of the episode metadata
                     if res["status"] == 200:
+
+                        # TODO NEEDS TO BE STORED IN b64
                         content = res["content"].replace("'", "''")
 
-                        self.insert_update_episodes(parent_id=res["parent_id"], url=res["url"], json_str=content, raw_content=res["content"])
+                        # why is res['content'] read twice?
+                        self.insert_update_episodes(parent_id=res["parent_id"], url=res["url"],
+                                                    json_str=content, raw_content=res["content"])
                     else:
+                        # TODO: logging and debug shit
                         print(f"url {res['url']} with status code {res['status']}")
                     ctr = 0
                 except Exception as e:
-                    print(traceback.format_exc())
+                    # TODO: logging and debug shit
                     print("\n\n\n FUCKING EXCEPTION \n\n\n")
+                    print(traceback.format_exc())
             else:
                 time.sleep(1)
                 ctr += 1
 
     def insert_update_episodes(self, parent_id: int, url: str, json_str: str, raw_content: str):
+        """
+        Given the parent_id (key), the url of the episode, the json_string associated with the episode and the content
+        of the episode site, it updates the stream and episodes table. Updating or inserting depending on presence and
+        deprecated state.
+
+        :param parent_id: key of the parent entry. (Series in XXX table) # TODO look up table
+        :param url: url of the episode that was downloaded
+        :param json_str: json string of the series site???
+        :param raw_content: json content that was the response for the series.
+        :return:
+        """
         try:
             # parse json content
             episode = json.loads(raw_content)
         except json.JSONDecodeError:
+            # TODO: logging and debug shit
             print(f"Failed to load raw content of {url},\n{raw_content}")
             return -1
         sel_ep = episode.get("selectedEpisode")
 
         episode_stream_ids = []
 
+        # verify selectedEpisode key exists
         if sel_ep is not None:
             media = sel_ep.get("media")
+
+            # verify media key exists
             if media is not None:
                 presentations = media.get("presentations")
+
+                # verify presentations key exists
                 if presentations is not None:
                     for i in range(len(presentations)):
                         p = presentations[i]
                         width = p.get("width")
+
+                        # try to retrieve width, ignore if it doesn't exist
+                        # TODO: proceed but put warning
                         if width is None:
+                            # TODO: logging and debug shit
                             print(f"Failed to retrieve WIDTH {width}")
                             continue
+
                         height = p.get("height")
+
+                        # try to retrieve height, ignore if it doesn't exist
+                        # TODO: proceed but put warning
                         if height is None:
+                            # TODO: logging and debug shit
                             print(f"Failed to retrieve HEIGHT {height}")
                             continue
 
                         resolution_string = f"{width} x {height}"
                         url = p.get("url")
+
+                        # verify url key exists
                         if p.get("url") is None:
+                            # TODO: logging and debug shit
                             print(f"Failed to retrieve URL {p}")
                             continue
+
                         episode_stream_ids.append(self.insert_update_streams(url=url, resolution=resolution_string))
 
+        # list of ids in streams table associated with current episode.
         stream_string = json.dumps(episode_stream_ids)
 
         # exists:
@@ -445,6 +574,7 @@ class BetterStreamLoader:
 
         # it exists, abort
         if self.sq_cur.fetchone() is not None:
+            # TODO: logging and debug shit
             print("Found active in db")
             return
 
@@ -459,10 +589,12 @@ class BetterStreamLoader:
 
         result = self.sq_cur.fetchone()
         if result is not None:
+            # TODO: logging and debug shit
             print(
                 "Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
 
-            # update all entries, to deprecated, unset deprecated where it is here
+            # update all entries, to deprecated, unset deprecated where it is here (???)
+            # TODO: why is first action performed
             self.sq_cur.execute(
                 f"UPDATE episodes SET deprecated = 1 WHERE parent = {parent_id} AND URL = '{url}'")
             self.sq_cur.execute(f"UPDATE episodes SET deprecated = 0 WHERE key = {result}")
@@ -470,11 +602,19 @@ class BetterStreamLoader:
 
         # doesn't exist -> insert
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # TODO: logging and debug shit
         print("Inserting")
         self.sq_cur.execute(
             f"INSERT INTO episodes (parent, URL, json, found, streams) VALUES ({parent_id}, '{url}', '{json_str}', '{now}', '{stream_string}')")
 
     def insert_update_streams(self, url: str, resolution: str):
+        """
+        Insert the stream into the database. If it exists update the database accordingly.
+        :param url: url of the stream
+        :param resolution: resolution of the stream
+        :return:
+        """
         # exists:
         self.sq_cur.execute(
             f"SELECT key FROM streams WHERE URL = '{url}' AND resolution = '{resolution}' AND deprecated = 0")
@@ -482,6 +622,7 @@ class BetterStreamLoader:
         # it exists, abort
         key = self.sq_cur.fetchone()
         if key is not None:
+            # TODO: logging and debug shit
             print("Found active in db")
             return key
 
@@ -491,24 +632,35 @@ class BetterStreamLoader:
 
         result = self.sq_cur.fetchone()
         if result is not None:
+            # TODO: logging and debug shit
             print(
                 "Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
 
-            # update all entries, to deprecated, unset deprecated where it is here
+            # update all entries, to deprecated, unset deprecated where it is here (???)
+            # update to not deprecated where the key matches.
             self.sq_cur.execute(f"UPDATE streams SET deprecated = 0 WHERE key = {result}")
             return result
 
         # doesn't exist -> insert
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # TODO: logging and debug shit
         print("Inserting")
         self.sq_cur.execute(
             f"INSERT INTO streams (URL, resolution, found) VALUES ('{url}', '{resolution}', '{now}')")
 
         self.sq_cur.execute(
             f"SELECT key FROM streams WHERE URL IS '{url}' AND  resolution IS '{resolution}' AND found IS '{now}'")
+
+        # return the key
         return self.sq_cur.fetchone()
 
     def deprecate_streams(self):
+        """
+        Iterate over all episodes that aren't deprecated and make them deprecated if there is no episode entry
+        storing them.
+        :return:
+        """
         self.sq_cur.execute("SELECT key FROM streams WHERE deprecated = 0")
 
         row = self.sq_cur.fetchone()
