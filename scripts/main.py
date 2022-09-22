@@ -1,6 +1,6 @@
 import datetime
 # from eth_loader.stream_loader import ConcurrentETHIndexer
-from eth_loader.indexer import ConcurrentETHIndexer
+from eth_loader.indexer import ConcurrentETHSiteIndexer
 from eth_loader.metadata_loader import EpisodeLoader
 from eth_loader.stream_loader import BetterStreamLoader, SpecLogin
 
@@ -9,7 +9,7 @@ from eth_loader.stream_loader import BetterStreamLoader, SpecLogin
 if __name__ == "__main__":
     start = datetime.datetime.now()
     print("Started")
-    eid = ConcurrentETHIndexer("seq_sites.db")
+    eid = ConcurrentETHSiteIndexer("seq_sites.db")
     eid.index_video_eth()
     eid.gen_parent()
     del eid
