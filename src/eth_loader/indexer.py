@@ -14,6 +14,11 @@ from sqlite3 import *
 
 
 def parent_site(url: str) -> str:
+    """
+    Generates the url to the parent site.
+    :param url: url to get the parent of.
+    :return:
+    """
     snippets = url.split("/")
     del snippets[-1]
 
@@ -26,6 +31,11 @@ def parent_site(url: str) -> str:
 
 
 def is_video(root: _Element) -> bool:
+    """
+    Checks if the video is present on the video.
+    :param root: lxml.etree._Element, root element of the html
+    :return:
+    """
     video = root.xpath("//vp-episode-page")
 
     if len(video) > 0:
@@ -34,12 +44,17 @@ def is_video(root: _Element) -> bool:
     return False
 
 
-class ConcurrentETHIndexer:
+class ConcurrentETHSiteIndexer:
+    """
+    Creates a Database of the hierarchy of the video sites of video.ethz.ch
+    It tracks the parent site which contained the link to the current site.
+    It also has a found tag which stores the date the site was found.
+    """
     def __init__(self, file: str, prefixes: list = None):
         """
-        Initializer for concurrent indexing of entire viedeo.ethz.ch site.
+        Initializer for concurrent indexing of entire video.ethz.ch site.
 
-        At the time permitted indexes are: campus, conferences, events, speakers, lectures
+        The time permitted indexes are: campus, conferences, events, speakers, lectures
 
         :param file: output where the video-series urls are stored. (at the time 6460 urls)
         :param prefixes: provide custom prefixes, main_header [campus, lectures, ...]
@@ -59,6 +74,11 @@ class ConcurrentETHIndexer:
         self.threads = []
 
     def val_uri(self, url: str) -> bool:
+        """
+        Checks if the uri is valid and can be processed.
+        :param url: url to check.
+        :return:
+        """
         # it is a valid site
         if ".html" not in url:
             return False
@@ -75,13 +95,20 @@ class ConcurrentETHIndexer:
         return False
 
     def init_db(self):
+        """
+        Initialises the database.
+        :return:
+        """
         self.sq_cur.execute("CREATE TABLE sites "
                             "(key INTEGER PRIMARY KEY AUTOINCREMENT, "
                             "parent INTEGER, "
                             "URL TEXT UNIQUE , "
                             "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1),"
                             "found TEXT);")
+
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Dummy entry to have a root.
         self.sq_cur.execute(f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found) VALUES (0, -1, 'https://www.video.ethz.ch', 0, '{now}')")
         print("Table Created")
 
@@ -117,6 +144,8 @@ class ConcurrentETHIndexer:
 
         self.spawn()
         self.dequeue()
+
+        # TODO: logger and debug shit
         print("Cleanup")
         self.cleanup()
         self.sq_con.commit()
@@ -126,11 +155,14 @@ class ConcurrentETHIndexer:
         Function that loads sub site and then proceeds to search it for either a video div or a list of sub sites.
         Sub sites are put into the to_download queue, video urls are put in the video_url queue
 
+        WARNING: This function is a member function of the same object. As a result it has access to the queues.
+        HOWEVER, it can create data-races so DO NOT ACCESS ANYTHING ELSE OTHER THAN THE QUEUES!
+
         :param url: full url of sub site to index like https://www.video.ethz.ch/speakers/d-infk/2015.html
         :param prefix: prefix of the site, only searching urls with identical prefix, like /speakers/d-infk
         :return:
         """
-        # load main site
+        # load target site
         resp = rq.get(url, headers={"user-agent": "Mozilla Firefox"})
         # get the html
         html = resp.content.decode("utf-8")
@@ -138,15 +170,20 @@ class ConcurrentETHIndexer:
         # prepare for xpath
         tree = etree.HTML(html)
         # x = tree.xpath("//a")
+
+        # get the box where the list of 'child organizers' are stored say d-infk/[list of all years.]
         x = tree.xpath("//div[@class='newsListBox']/a")
 
         # dump the site to the list of video urls if it matches
         if is_video(tree):
+
+            # TODO: logger and debug shit
             print(f"put {url}")
             self.found_url_queue.put({"url": url, "is_video": 1})
             return
 
         else:
+            # TODO: logger and debug shit
             print(f"put {url}")
             self.found_url_queue.put({"url": url, "is_video": 0})
 
@@ -162,6 +199,7 @@ class ConcurrentETHIndexer:
                 if (prefix.split(".")[0] in uri) and (prefix != uri):
                     self.sub_index(f"https://www.video.ethz.ch{uri}", uri)
 
+        # TODO: logger and debug shit
         print(f"Done {url}")
 
     def cleanup(self):
@@ -175,7 +213,7 @@ class ConcurrentETHIndexer:
 
     def spawn(self, threads: int = 100):
         """
-        Spawns worker theads.
+        Spawns worker threads.
 
         :param threads: number of threads to spawn 1-10000
         :return:
@@ -193,7 +231,11 @@ class ConcurrentETHIndexer:
     def __indexer(self):
         """
         Function executed by a worker thread. If the to_download queue is empty for 10s,
-        the worker kills itself. For every target in the queue, it calls the __sub_index func.
+        the worker kills itself.
+        For every target in the queue, it calls the __sub_index func.
+
+        WARNING: This function is a member function of the same object. As a result it has access to the queues.
+        HOWEVER, it can create data-races so DO NOT ACCESS ANYTHING ELSE OTHER THAN THE QUEUES!
         :return:
         """
         # after timeout of 10s the indexer subprocess kills itself
@@ -216,7 +258,7 @@ class ConcurrentETHIndexer:
 
     def sub_index(self, url: str, prefix: str):
         """
-        Wrapper for __sub_index function.
+        Wrapper for __sub_index function. (Here to allow for multiprocesing)
 
         :param url: full url of sub site to index like https://www.video.ethz.ch/speakers/d-infk/2015.html
         :param prefix: prefix of the site, only searching urls with identical prefix, like /speakers/d-infk
@@ -248,44 +290,71 @@ class ConcurrentETHIndexer:
                             self.sq_con.commit()
                             insert_counter += 1
                         else:
+                            # TODO: logger and debug shit
                             print("Already in db")
 
                     except sqlite3.IntegrityError:
+                        # TODO: logger and debug shit
                         print(traceback.format_exc())
                         print(arguments)
                     counter = 0
             else:
                 counter += 1
                 sleep(1)
+        # TODO: logger and debug shit
         print(f"Inserted {insert_counter} entries in sites table")
 
     def not_in_db(self, url):
+        """
+        Verifies the url is not already in the database. (Search ONLY based on url)
+        :param url:
+        :return:
+        """
         self.sq_cur.execute(f"SELECT key FROM sites WHERE URL = '{url}'")
         return self.sq_cur.fetchone() is None
 
     def gen_parent(self):
+        """
+        Generates the tree hierarchy for the site index.
+        :return:
+        """
+        # temporary storage of parent url:key to parent_id:value.
         parent_ids = {}
 
         self.sq_cur.execute("SELECT key, URL FROM sites WHERE parent IS NULL")
         one = self.sq_cur.fetchone()
 
+        # perform the parent linking while there are entries that have no parent.
         while one is not None:
             key = one[0]
             url = one[1]
+
+            # generate the parent url from own url.
             parent_url = parent_site(url)
+
+            # try to locate the parent_id in the temporary dictionary.
             parent_id = parent_ids.get(parent_url)
 
+            # if no id is found, search the id and put it in the temp dict.
             if parent_id is None:
-                parent_id = self.get_parent(parent_url)
+                parent_id = self.get_url_id(parent_url)
                 parent_ids[parent_url] = parent_id
 
+            # TODO: logging and debug shit
             print(f"UPDATE sites SET parent = {parent_id} WHERE key IS {key}")
             self.sq_cur.execute(f"UPDATE sites SET parent = {parent_id} WHERE key IS {key}")
 
+            # Fetch the next entry which has no parent.
             self.sq_cur.execute("SELECT key, URL FROM sites WHERE parent IS NULL")
             one = self.sq_cur.fetchone()
 
-    def get_parent(self, url: str):
+    def get_url_id(self, url: str):
+        """
+        Given an url, the function searches the database for the url and returns the key. If it doesn't exist, it
+        returns -1
+        :param url: url to retrieve the key from.
+        :return: key or -1 if no key found.
+        """
         self.sq_cur.execute(f"SELECT (key) FROM sites WHERE URL IS '{url}'")
         query_result = self.sq_cur.fetchall()
 
