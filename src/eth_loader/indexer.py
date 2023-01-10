@@ -12,6 +12,26 @@ from time import sleep
 from queue import Empty
 from sqlite3 import *
 
+"""
+# Functionality of Class:
+
+## Life cycle of ConcurrentETHSiteIndexer
+- init: create the queues and initialize the attributes, connect to the database
+- index_video_eth: schedule all links (hrefs) found on the root site of video site of the eth for the workers.
+    uses sub_index to add the first results to the ingest queue (can be switched to __sub_index func for debugging)
+- spawn: spawns the workers and returns (doesn't wait for workers to exit)
+- dequeue: dequeues the results from the results queue, uses 'not_in_db' to insert only the new results into the db
+    uses 'workers_alive' to check if new results are still added to the queue, 
+- gen_parent: create the linking to create the site hirarchie in the database with foreign keys.
+    uses 'get_url_id' to find the key of the parent. store the result in dict to make accessing faster (db is slow)
+    
+## Worker life cycle
+- __indexer: try to dequeue, queue empty for 20s, exit, uses '__sub_index' to recursively search site
+- __sub_index: fetches page from arguments, checks if page is a video if so, put that in queue, and return
+    else, put no video in queue and  get all hrefs, make sure the parent matches, then add them to the todo queue
+
+"""
+
 
 def parent_site(url: str) -> str:
     """
@@ -258,7 +278,8 @@ class ConcurrentETHSiteIndexer:
 
     def sub_index(self, url: str, prefix: str):
         """
-        Wrapper for __sub_index function. (Here to allow for multiprocesing)
+        Wrapper for __sub_index function. (Here to allow for multiprocessing) switch back in case you want to debug or
+        test something, have here the self.__sub__index function
 
         :param url: full url of sub site to index like https://www.video.ethz.ch/speakers/d-infk/2015.html
         :param prefix: prefix of the site, only searching urls with identical prefix, like /speakers/d-infk
