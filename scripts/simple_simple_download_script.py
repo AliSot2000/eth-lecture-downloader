@@ -29,8 +29,8 @@ def target_loader(command: dict):
           f"to {path}")
     stream = rq.get(url, headers={"user-agent": "Firefox"})
     if stream.ok:
-        with open(path, "wb") as file:
-            file.write(stream.content)
+        with open(path, "wb") as f:
+            f.write(stream.content)
 
         print(f"Done {os.path.join(folder, f'{date}.mp4')}")
         return "success"
