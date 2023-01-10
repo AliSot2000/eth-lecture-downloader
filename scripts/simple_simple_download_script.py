@@ -91,6 +91,7 @@ for argu in arguments:
             j = episode.json()
             maxq_url = j["selectedEpisode"]["media"]["presentations"][0]
             date = j["selectedEpisode"]["createdAt"]
+            date = date.replace(":", "_")
 
             if not (os.path.exists(os.path.join(folder, f"{date}.mp4")) or os.path.exists(
                     os.path.join(folder, f".{date}.mp4"))):
