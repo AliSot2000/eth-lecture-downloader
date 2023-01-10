@@ -3,6 +3,15 @@ import requests as rq
 
 session = rq.session()
 
+"""
+Script handles the downloading and only the downloading of the files. 
+No compression takes place
+
+Also you provide the arguments interactively to the script and don't have to modify the script itself.
+
+The script is single threaded and not optimized in any way shape or form.
+"""
+
 
 def target_loader(url: str, path: str):
     print(f"downloading {url}\n"
@@ -101,18 +110,3 @@ for u in urls:
             print(episode.status_code)
 
 print("all done")
-
-# for video in to_download:
-#     t = mp.Process(target=target_loader, args=(video["url"], video["path"]))
-#     t.start()
-#     threads.append(t)
-
-# a = 10
-# while a > 0:
-#     a = 0
-#     for i in range(len(threads)):
-#         if threads[i].is_alive():
-#             a += 1
-
-# for thr in threads:
-#     thr.join()
