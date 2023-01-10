@@ -58,7 +58,7 @@ if login.status_code == 403:
 
 for u in urls:
     # load all episodes
-    episodes = session.get(u.replace(".html", ".series-metadata.json"), headers={"user-agent": "lol it still workd"})
+    episodes = session.get(u.replace(".html", ".series-metadata.json"), headers={"user-agent": "lol it still worked"})
     ep = episodes.json()
 
     all_episodes = ep["episodes"]
