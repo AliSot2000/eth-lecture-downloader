@@ -15,14 +15,20 @@ class RandomProxy:
     Python wrapper for the proxylist.genode.com service. It fetches the current proxies and randomly returnes one of the
     proxies that 'are working'.
     """
-    def __init__(self):
+    def __init__(self, update_interval: int = 600):
         """
         Initializes the object with default values and performes a request to the api.
+
+        :param update_interval: how frequently the proxy list should be updated. default 10min
+        :return: Obj
         """
+        if update_interval < 10:
+            raise ValueError("update Interval needs to be greater than 10")
         self.proxy_list = []
         self.response_json_dict = {}
         self.last_update = datetime.datetime.now()
         self.update_proxies()
+        self.update_interval = update_interval
 
     def get_proxy(self):
         """
@@ -62,10 +68,9 @@ class RandomProxy:
         Updates the proxies every 10 min.
         :return:
         """
-        if (datetime.datetime.now() - self.last_update).total_seconds() > 600:
+        if (datetime.datetime.now() - self.last_update).total_seconds() > self.update_interval:
             self.update_proxies()
 
 
 if __name__ == "__main__":
-
     rdp = RandomProxy()
