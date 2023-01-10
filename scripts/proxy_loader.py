@@ -15,7 +15,7 @@ class RandomProxy:
     Python wrapper for the proxylist.genode.com service. It fetches the current proxies and randomly returnes one of the
     proxies that 'are working'.
     """
-    def __init__(self, update_interval: int = 600):
+    def __init__(self, update_interval: int = 600, anonymity: tuple = ("elite")):
         """
         Initializes the object with default values and performes a request to the api.
 
@@ -29,6 +29,7 @@ class RandomProxy:
         self.last_update = datetime.datetime.now()
         self.update_proxies()
         self.update_interval = update_interval
+        self.anonymity = anonymity
 
     def get_proxy(self):
         """
@@ -49,7 +50,7 @@ class RandomProxy:
             self.response_json_dict = res.json()
             self.__parse_proxies()
 
-    def __parse_proxies(self, anonymity_lvl: tuple = ("elite")):
+    def __parse_proxies(self):
         """
         Parses the response of the api request. Only selects the proxies that have anonymity level elite.
         :return:
@@ -58,7 +59,7 @@ class RandomProxy:
         self.proxy_list = []
 
         for o in proxy_objs:
-            if o["anonymityLevel"] in anonymity_lvl:
+            if o["anonymityLevel"] in self.anonymity:
                 self.proxy_list.append(Proxy(ip=o["ip"], port=o["port"]))
 
         self.last_update = datetime.datetime.now()
