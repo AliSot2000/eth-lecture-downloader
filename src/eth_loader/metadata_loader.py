@@ -23,7 +23,8 @@ def retrieve_metadata(website_url: str, identifier: str, headers: dict, parent_i
     it will try to download it anyway. The function shouldn't fail except if the site doesn't exist.
 
     :param website_url: url to download eg. /category/subcategory/year/season/lecture_id.html
-    :param identifier: str for thread to give i/home/alisot2000/Documents/01 ReposNCode/ETH-Lecture-Loadernformation where the download was executed in case of an error.
+    :param identifier: str for thread to give i/home/alisot2000/Documents/01 ReposNCode/ETH-Lecture-Loadernformation
+    where the download was executed in case of an error.
     :param headers: dict to be passed to the request library. Download will fail if no user-agent is provided.
     """
 
