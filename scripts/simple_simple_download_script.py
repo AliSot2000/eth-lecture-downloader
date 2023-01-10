@@ -7,25 +7,10 @@ import multiprocessing as mp
 import threading as th
 import queue
 import time
-from secrets import username, password, arguments, download_directory
+from secrets import username, password, arguments, download_directory, SeriesArgs
+
 
 session = rq.session()
-
-
-@dataclass
-class SeriesArgs:
-    """
-    Url needs to be a match for a series like: https://videos.ethz.ch/lectures/d-infk/2022/spring/NUMBER, no .html or
-    .series-metadata. It may also be a specific episode of a series.
-    """
-    url: str
-    username: str = None
-    password: str = None
-
-    folder: str = None
-    keep_originals: bool = False
-    compressed_suffix: str = None
-    compressed_folder: str = None
 
 
 @dataclass()
