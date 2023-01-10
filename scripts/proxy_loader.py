@@ -20,6 +20,7 @@ class RandomProxy:
         Initializes the object with default values and performes a request to the api.
 
         :param update_interval: how frequently the proxy list should be updated. default 10min
+        :param anonymity: Anonymity level of servers to filter.
         :return: Obj
         """
         if update_interval < 10:
