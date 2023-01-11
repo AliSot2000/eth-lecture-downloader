@@ -264,11 +264,11 @@ class EpisodeLoader:
         result = self.sq_cur.fetchone()
         if result is not None:
 
-            print("Found inactive in db, reacivate and set everything else matching parent, url and series to deprecated")
-
+            print(f"Found {url} inactive in db, reacivate and set everything else matching parent, "
+                  f"url and series to deprecated")
             # update all entries, to deprecated, unset deprecated where it is here
             self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE parent = {parent_id} AND URL = {url}")
-            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 0 WHERE key = {result}")
+            self.sq_cur.execute(f"UPDATE metadata SET deprecated = 0, last_seen = '{now}' WHERE key = {result}")
             return
 
         # doesn't exist -> insert
