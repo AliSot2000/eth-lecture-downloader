@@ -381,6 +381,7 @@ class ConcurrentETHSiteIndexer:
             # Fetch the next entry which has no parent.
             self.sq_cur.execute("SELECT key, URL FROM sites WHERE parent IS NULL")
             one = self.sq_cur.fetchone()
+        self.sq_con.commit()
 
     def get_url_id(self, url: str):
         """
