@@ -117,13 +117,13 @@ class EpisodeLoader:
         self.urls = self.sq_cur.fetchall()
 
     def verify_args_table(self):
-        self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='sites'")
+        self.sq_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sites'")
 
         if self.sq_cur.fetchone() is None:
             raise ValueError("didn't find the 'sites' table inside the given database.")
 
     def check_results_table(self):
-        self.sq_cur.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name='metadata'")
+        self.sq_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='metadata'")
 
         if self.sq_cur.fetchone() is None:
             self.sq_cur.execute("CREATE TABLE metadata "
