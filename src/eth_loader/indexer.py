@@ -309,14 +309,14 @@ class ConcurrentETHSiteIndexer:
                     try:
                         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         if self.not_in_db(url):
-                            self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found) VALUES "
-                                                f"('{url}', {a_video}, '{now}')")
+                            self.sq_cur.execute("INSERT INTO sites (URL, IS_VIDEO, found, last_seen) VALUES "
+                                                f"('{url}', {a_video}, '{now}', '{now}')")
                             self.sq_con.commit()
                             insert_counter += 1
+                            print(f"Found new: {url}")
                         else:
-                            # TODO: logger and debug shit
-                            print("Already in db")
-
+                            self.update_found(url=url)
+                            print(f"Already in DB: {url}")
                     except sqlite3.IntegrityError:
                         # TODO: logger and debug shit
                         print(traceback.format_exc())
