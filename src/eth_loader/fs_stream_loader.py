@@ -10,6 +10,12 @@ from threading import Thread
 import json
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# DEPRECATED !!!
+# Still uses the file system based solution. Use the new and improved sql solution XD
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 def get_stream(website_url: str, identifier: str, headers: dict, cookies: bytes) -> dict:
     """
     Function to download a single metadata file for a given video_site and video entry. The website_url needs to be of type:
