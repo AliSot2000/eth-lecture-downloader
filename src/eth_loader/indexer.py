@@ -281,7 +281,8 @@ class ConcurrentETHSiteIndexer:
 
     def sub_index(self, url: str, prefix: str):
         """
-        Wrapper for __sub_index function. (Here to allow for multiprocesing)
+        Wrapper for __sub_index function. (Here to allow for multiprocessing) switch back in case you want to debug or
+        test something, have here the self.__sub__index function
 
         :param url: full url of sub site to index like https://www.video.ethz.ch/speakers/d-infk/2015.html
         :param prefix: prefix of the site, only searching urls with identical prefix, like /speakers/d-infk
