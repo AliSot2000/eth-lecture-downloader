@@ -125,12 +125,14 @@ class ConcurrentETHSiteIndexer:
                             "parent INTEGER, "
                             "URL TEXT UNIQUE , "
                             "IS_VIDEO INTEGER CHECK (IS_VIDEO >= 0 AND IS_VIDEO <= 1),"
-                            "found TEXT);")
+                            "found TEXT,"
+                            "last_seen TEXT);")  # found now is equivalent to 'last seen'
 
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Dummy entry to have a root.
-        self.sq_cur.execute(f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found) VALUES (0, -1, 'https://www.video.ethz.ch', 0, '{now}')")
+        self.sq_cur.execute(
+            f"INSERT INTO sites (key, parent, URL, IS_VIDEO, found, last_seen) VALUES (0, -1, 'https://www.video.ethz.ch', 0, '{now}', '{now}')")
         print("Table Created")
 
     def index_video_eth(self):
