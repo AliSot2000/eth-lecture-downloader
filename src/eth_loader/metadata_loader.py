@@ -162,6 +162,12 @@ class EpisodeLoader:
         print("DOWNLOAD DONE")
 
     def spawn(self, workers: int):
+        """
+        Spawns the worker threads using threading package.
+
+        :param workers: number of workers to spawn.
+        :return:
+        """
         # generate arguments for the worker threads
         commands = [(i, self.command_queue, self.result_queue,) for i in range(workers)]
         threads = []
