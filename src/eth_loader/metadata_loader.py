@@ -275,4 +275,50 @@ class EpisodeLoader:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print("Inserting")
         self.sq_cur.execute(
-            f"INSERT INTO metadata (parent, URL, json, found) VALUES ({parent_id}, '{url}', '{json}', '{now}')")
+            f"INSERT INTO metadata (parent, URL, json, found, last_seen) VALUES "
+            f"({parent_id}, '{url}', '{json}', '{now}', '{now}')")
+
+    def deprecate(self, dt: datetime.datetime):
+        """
+        Go through all entries of table. Make sure the parent has a last_seen newer than dt. If not, set deprecated to
+        true.
+
+        :param dt: limit before which a site is deemed to be deprecated.
+        :return:
+        """
+
+        self.sq_cur.execute("SELECT key, parent FROM metadata ORDER BY key ASC")
+        row = self.sq_cur.fetchone()
+
+        # key empty, nothing to see.
+        if row is None:
+            print("Nothing in metadata table")
+            return
+
+        while row is not None:
+            self.sq_cur.execute(f"SELECT last_seen FROM sites WHERE key = {row[1]}")
+            par = self.sq_cur.fetchone()
+
+            # Parent doesn't exist?!?
+            if par is None:
+                self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE key = {row[0]}")
+                print(f"Parent {row[1]} doesn't exist")
+
+                # update the row and continue the loop.
+                self.sq_cur.execute(f"SELECT key, parent FROM metadata WHERE key > {row[0]}")
+                row = self.sq_cur.fetchone()
+                continue
+
+            assert type(par[0]) is str, f"Type of last_seen not string but {type(par[0]).__name__}"
+            par_dt = datetime.datetime.strptime(par[0], "%Y-%m-%d %H:%M:%S")
+
+            # par_dt before dt, update the deprecation
+            if (par_dt - dt).total_seconds() < 0:
+                self.sq_cur.execute(f"UPDATE metadata SET deprecated = 1 WHERE key = {row[0]}")
+                print(f"Deprecated {row[0]}")
+
+            # update the row and continue the loop.
+            self.sq_cur.execute(f"SELECT key, parent FROM metadata WHERE key > {row[0]}")
+            row = self.sq_cur.fetchone()
+
+        self.sq_con.commit()
