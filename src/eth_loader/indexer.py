@@ -70,6 +70,7 @@ class ConcurrentETHSiteIndexer:
     It tracks the parent site which contained the link to the current site.
     It also has a found tag which stores the date the site was found.
     """
+
     def __init__(self, file: str, prefixes: list = None):
         """
         Initializer for concurrent indexing of entire video.ethz.ch site.
