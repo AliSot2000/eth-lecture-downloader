@@ -248,10 +248,14 @@ class EpisodeLoader:
         """
         # exists:
         self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 0")
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # it exists, abort
-        if self.sq_cur.fetchone() is not None:
-            print("Found active in db")
+        result = self.sq_cur.fetchone()
+        if result is not None:
+            print(f"Found {url} active in db")
+
+            self.sq_cur.execute(f"UPDATE metadata SET last_seen = '{now}' WHERE key = {result[0]}")
             return
 
         # exists but is deprecated
