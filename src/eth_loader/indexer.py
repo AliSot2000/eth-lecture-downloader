@@ -337,6 +337,16 @@ class ConcurrentETHSiteIndexer:
         self.sq_cur.execute(f"SELECT key FROM sites WHERE URL = '{url}'")
         return self.sq_cur.fetchone() is None
 
+    def update_found(self, url: str):
+        """
+        Update the found entry of a given row to the current date and time.
+
+        :param url: url to match for the update for the last seen time.
+        :return:
+        """
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.sq_cur.execute(f"UPDATE sites SET last_seen = '{now}' WHERE URL IS '{url}'")
+
     def gen_parent(self):
         """
         Generates the tree hierarchy for the site index.
