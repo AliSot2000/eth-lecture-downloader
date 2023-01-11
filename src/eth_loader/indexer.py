@@ -64,6 +64,7 @@ def is_video(root: _Element) -> bool:
     return False
 
 
+# TODO IDEA: keep list of last seen for recurrent indexing?
 class ConcurrentETHSiteIndexer:
     """
     Creates a Database of the hierarchy of the video sites of video.ethz.ch
