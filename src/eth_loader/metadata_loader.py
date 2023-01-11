@@ -209,6 +209,7 @@ class EpisodeLoader:
         e_counter = 0
 
         ctr = 0
+        res = {"url": "Empty", "content": "empty"}
         while ctr < 20:
             if not self.result_queue.empty():
                 try:
