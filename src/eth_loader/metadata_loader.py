@@ -238,6 +238,14 @@ class EpisodeLoader:
         print(f"Downloaded {g_counter} with {e_counter} errors.")
 
     def insert_update_db(self, parent_id: int, url: str, json: str):
+        """
+        Insert into db if new, update if exists and check deprecation status.
+
+        :param parent_id: id of the parent site in the sites table
+        :param url: url of the metadata
+        :param json: json stored at metadata url
+        :return:
+        """
         # exists:
         self.sq_cur.execute(f"SELECT key FROM metadata WHERE parent = {parent_id} AND URL = '{url}' AND json = '{json}' AND deprecated = 0")
 
