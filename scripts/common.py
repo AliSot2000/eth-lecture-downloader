@@ -94,8 +94,9 @@ def compress_cpu(command: CompressionArgument, identifier: int):
         with open(command.hidden_path, "w") as file:
             file.write(f"{identifier:02}: Keep originals is false")
 
-    if return_code != 0:
-        raise RuntimeError(f"{identifier:02}: Handbrake returned non-zero return code")
+    # nvenc_h264 returns NONE!!!
+    if return_code != 0 and return_code is not None:
+        raise RuntimeError(f"{identifier:02}: Handbrake returned non-zero return code {return_code}")
 
     return command
 
