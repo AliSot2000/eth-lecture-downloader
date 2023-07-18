@@ -130,8 +130,8 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
         try:
             result = fn(arguments, worker_nr)
         except Exception as e:
-            print(e)
-            result_queue.put(f"{worker_nr:02}: EXCEPTION")
+            print(f"{worker_nr:02}: {e}")
+            result_queue.put(f"EXCEPTION")
             break
 
         result_queue.put(result)
