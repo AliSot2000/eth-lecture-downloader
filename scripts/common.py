@@ -100,9 +100,9 @@ def compress_cpu(command: CompressionArgument, identifier: int):
     return command
 
 
-def compress_gpu(command: CompressionArgument, id: int):
+def compress_gpu(command: CompressionArgument, identifier: int):
     command.command_list.extend(["-e", "nvenc_h264"])
-    return compress_cpu(command, id)
+    return compress_cpu(command, identifier)
 
 
 def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn: callable):
