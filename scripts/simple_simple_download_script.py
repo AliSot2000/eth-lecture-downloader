@@ -1,39 +1,14 @@
-import os.path
-import subprocess
-import requests as rq
-from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
-import multiprocessing as mp
-import threading as th
-import queue
-import time
 from secrets import username, password, arguments, download_directory, SeriesArgs
+from common import *
 
 
 session = rq.session()
 
 
-@dataclass()
-class CompressionArgument:
-    command_list: list
-    source_path: str
-    destination_path: str
-    hidden_path: str
-    keep_original: bool
-
-
-def target_loader(command: dict):
-    url = command["url"]
-    path = command["path"]
-    print(f"downloading {url}\n"
-          f"to {path}")
-    stream = rq.get(url, headers={"user-agent": "Firefox"})
-    if stream.ok:
-        with open(path, "wb") as f:
-            f.write(stream.content)
-
-        print(f"Done {os.path.join(folder, f'{date}.mp4')}")
-        return "success"
+"""
+Contains a single threaded (and consequently memory efficient version of the algorithm)
+"""
 
 
 def get_cmd_list():
@@ -96,8 +71,8 @@ for argu in arguments:
             if not (os.path.exists(os.path.join(folder, f"{date}.mp4")) or os.path.exists(
                     os.path.join(folder, f".{date}.mp4"))):
 
-                to_download.append({"url": maxq_url["url"], "path": os.path.join(folder, f"{date}.mp4")})
-
+                to_download.append(DownloadArgs(full_url=maxq_url["url"],
+                                                download_path=os.path.join(folder, f"{date}.mp4")))
         else:
             print(episode.status_code)
 
@@ -175,78 +150,8 @@ for argument in arguments:
 if to_compress.empty():
     exit(0)
 
-
-def compress_cpu(command: CompressionArgument):
-    proc = subprocess.Popen(
-        command.command_list,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, universal_newlines=True)
-
-    while True:
-        # Do something else
-        output = proc.stdout.read()
-        print(output)
-
-        return_code = proc.poll()
-        if return_code is not None:
-            print('RETURN CODE', return_code)
-
-            output = proc.stdout.read()
-            print(output)
-
-            break
-
-    if command.keep_original is False:
-        os.remove(command.source_path)
-        with open(command.hidden_path, "w") as file:
-            file.write("Keep originals is false")
-
-    if return_code != 0:
-        raise RuntimeError("Handbrake returned non-zero return code")
-
-    return command
-
-
-def compress_gpu(command: CompressionArgument):
-    command.command_list.extend(["-e", "nvenc_h264"])
-    return compress_cpu(command)
-
-
-def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn: callable):
-    """
-    Function executed in a worker thread. The function tries to download the given url in the queue. If the queue is
-    empty for 20s, it will kill itself.
-
-    :param fn: Function to be called in handler
-    :param worker_nr: Itendifier for debugging
-    :param command_queue: Queue containing dictionaries containing all relevant information for downloading
-    :param result_queue: Queue to put the results in. Handled in main thread.
-    :return:
-    """
-    print("Starting")
-    ctr = 0
-    while ctr < 20:
-        try:
-            arguments = command_queue.get(block=False)
-            ctr = 0
-        except queue.Empty:
-            ctr += 1
-            time.sleep(1)
-            continue
-
-        try:
-            result = fn(arguments)
-        except Exception as e:
-            print(e)
-            result_queue.put("EXCEPTION")
-            break
-
-        result_queue.put(result)
-
-    print(f"{worker_nr} Terminated")
-    result_queue.put("TERMINATED")
-
-
+print(f"Initial Queue Size: {to_compress.qsize()}")
 while not to_compress.empty():
     compress_cpu(to_compress.get())
+    print(f"Files to compress: {to_compress.qsize()}")
 print("Done")
