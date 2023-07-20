@@ -5,7 +5,7 @@ import subprocess
 import multiprocessing as mp
 import time
 import queue
-import select
+import threading as th
 
 
 @dataclass
@@ -139,3 +139,112 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
 
     print(f"{worker_nr:02}: Terminated")
     result_queue.put("TERMINATED")
+
+def get_cmd_list():
+    # return ['HandBrakeCLI', '-v', '5', '--json', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
+    #             '-l', '1080', '--keep-display-aspect']
+    return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
+                '-l', '1080', '--keep-display-aspect']
+
+# exit(100)
+def build_args(dl_args: DownloadArgs, dl_dir: str) -> mp.Queue:
+    to_compress = mp.Queue()
+
+    # perform compression
+    for argument in dl_args:
+        # list download folder
+        if argument.folder is not None:
+            folder = argument.folder
+        else:
+            folder = argument.url.split("/")[-1]
+            folder = folder.replace(".html", "")
+            folder = os.path.join(dl_dir, folder)
+
+        # set the suffix if the user hasn't already
+        if argument.compressed_suffix is None:
+            argument.compressed_suffix = "_comp"
+
+        download_content = os.listdir(folder)
+
+        # list target folder
+        if argument.compressed_folder is not None:
+            comp_folder = argument.compressed_folder
+        else:
+            comp_folder = argument.url.split("/")[-1]
+            comp_folder = comp_folder.replace(".html", "")
+            comp_folder += "_compressed"
+            comp_folder = os.path.join(dl_dir, comp_folder)
+
+        if os.path.exists(comp_folder):
+            compressed_content = os.listdir(comp_folder)
+        else:
+            os.makedirs(comp_folder)
+            compressed_content = []
+
+        # iterate over files and compress the ones that aren't done
+        for file in download_content:
+            fp = os.path.join(folder, file)
+            if os.path.isfile(fp):
+                # skip hidden files
+                if file[0] == ".":
+                    continue
+
+                hidden_fp = os.path.join(folder, f".{file}")
+
+                name, ext = os.path.splitext(file)
+                comp_name = f"{name}{argument.compressed_suffix}{ext}"
+
+                # in compressed folder -> it is done
+                if comp_name in compressed_content:
+                    continue
+
+                comp_fp = os.path.join(comp_folder, comp_name)
+
+                # perform compression
+                raw_list = get_cmd_list()
+                file_list = ["-i", fp, "-o", comp_fp]
+                raw_list.extend(file_list)
+
+                to_compress.put(CompressionArgument(raw_list, fp, comp_fp, hidden_fp, argument.keep_originals))
+    return to_compress
+
+
+def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
+    if q.empty():
+        return
+
+    cpu_h = []
+    gpu_h = []
+    resq = mp.Queue()
+
+    for i in range(cpu_i):
+        cpu_h.append(th.Thread(target=handler, args=(i, q, resq, compress_cpu)))
+        cpu_h[i].start()
+
+    for i in range(cpu_i, cpu_i + gpu_i):
+        gpu_h.append(th.Thread(target=handler, args=(i, q, resq, compress_gpu)))
+        gpu_h[i - cpu_i].start()
+
+    to = 0
+    e_count = 0
+
+    while to < 3600 and e_count < cpu_i+gpu_i:
+        time.sleep(1)
+
+        if not resq.empty():
+            res = resq.get(block=False)
+            if res == "EXCEPTION":
+                exit(1)
+            elif res == "TERMINATED":
+                e_count += 1
+                to = 0
+            else:
+                print("DONE with:")
+                print(res)
+                to = 0
+
+    for i in cpu_h:
+        i.join()
+
+    for i in gpu_h:
+        i.join()
