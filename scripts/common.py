@@ -6,6 +6,7 @@ import multiprocessing as mp
 import time
 import queue
 import threading as th
+from typing import List
 
 
 @dataclass
@@ -147,7 +148,7 @@ def get_cmd_list():
                 '-l', '1080', '--keep-display-aspect']
 
 # exit(100)
-def build_args(dl_args: DownloadArgs, dl_dir: str) -> mp.Queue:
+def build_args(dl_args: List[SeriesArgs], dl_dir: str) -> mp.Queue:
     to_compress = mp.Queue()
 
     # perform compression
