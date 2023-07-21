@@ -211,6 +211,8 @@ def build_args(dl_args: List[SeriesArgs], dl_dir: str) -> mp.Queue:
 
 
 def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
+    if gpu_i > 0:
+        print("WARNING: Compressing using nvenc will INCREASE file sizes drastically.")
     if q.empty():
         return
 
