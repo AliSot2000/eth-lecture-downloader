@@ -6,7 +6,7 @@ import multiprocessing as mp
 import time
 import queue
 import threading as th
-from typing import List
+from concurrent.futures import ThreadPoolExecutor
 
 
 @dataclass
@@ -16,26 +16,11 @@ class SeriesArgs:
     .series-metadata. It may also be a specific episode of a series.
     """
     url: str
+    folder: str
+
     username: str = None
     password: str = None
 
-    folder: str = None
-    keep_originals: bool = False
-    compressed_suffix: str = None
-    compressed_folder: str = None
-
-
-@dataclass
-class SeriesArgs:
-    """
-    Url needs to be a match for a series like: https://videos.ethz.ch/lectures/d-infk/2022/spring/NUMBER, no .html or
-    .series-metadata. It may also be a specific episode of a series.
-    """
-    url: str
-    username: str = None
-    password: str = None
-
-    folder: str = None
     keep_originals: bool = False
     compressed_suffix: str = None
     compressed_folder: str = None
@@ -43,6 +28,9 @@ class SeriesArgs:
 
 @dataclass
 class CompressionArgument:
+    """
+    Dataclass passed to the compression workers. Contains all relevant information for compressing.
+    """
     command_list: list
     source_path: str
     destination_path: str
@@ -52,17 +40,28 @@ class CompressionArgument:
 
 @dataclass
 class DownloadArgs:
+    """
+    Dataclass passed to the download workers. Contains all relevant information for downloading.
+    """
     full_url: str
     download_path: str
 
 
 def target_loader(command: DownloadArgs):
+    """
+    Downloads the given url to the given path. If the download fails, the command is returned.
+    """
     url = command.full_url
     path = command.download_path
     print(f"downloading {url}\n"
           f"to {path}")
 
-    stream = rq.get(url, headers={"user-agent": "Firefox"})
+    try:
+        stream = rq.get(url, headers={"user-agent": "Firefox"})
+    except Exception as e:
+        print(e)
+        return command
+
     if stream.ok:
         with open(path, "wb") as file:
             file.write(stream.content)
@@ -72,7 +71,11 @@ def target_loader(command: DownloadArgs):
     else:
         return command
 
+
 def compress_cpu(command: CompressionArgument, identifier: int):
+    """
+    Function to compress the given file with handbrake. The Command is returned in the end.
+    """
     proc = subprocess.Popen(
         command.command_list,
         stdout=subprocess.PIPE,
@@ -89,7 +92,6 @@ def compress_cpu(command: CompressionArgument, identifier: int):
         output = proc.stdout.read()
         print(output)
 
-
     if command.keep_original is False:
         os.remove(command.source_path)
         with open(command.hidden_path, "w") as file:
@@ -103,6 +105,9 @@ def compress_cpu(command: CompressionArgument, identifier: int):
 
 
 def compress_gpu(command: CompressionArgument, identifier: int):
+    """
+    Function to use nvenc_h264 - increases encoding speed, increases file size.
+    """
     command.command_list.extend(["-e", "nvenc_h264"])
     return compress_cpu(command, identifier)
 
@@ -142,71 +147,70 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
     result_queue.put("TERMINATED")
 
 def get_cmd_list():
-    # return ['HandBrakeCLI', '-v', '5', '--json', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
-    #             '-l', '1080', '--keep-display-aspect']
+    """
+    Builds teh default command list for handbrake.
+    """
     return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
                 '-l', '1080', '--keep-display-aspect']
 
-# exit(100)
-def build_args(dl_args: List[SeriesArgs], dl_dir: str) -> mp.Queue:
+
+def build_args(argument: SeriesArgs) -> mp.Queue:
+    """
+    Given the series args indexes the arguments and fills a queue with all the commands to compress all the newly
+    available files.
+
+    :param argument: SeriesArgs containing all relevant information
+    :return: Queue containing all commands to compress the files
+    """
     to_compress = mp.Queue()
+    comp_folder = None
 
     # perform compression
-    for argument in dl_args:
-        # list download folder
-        if argument.folder is not None:
-            folder = argument.folder
-        else:
-            folder = argument.url.split("/")[-1]
-            folder = folder.replace(".html", "")
-            folder = os.path.join(dl_dir, folder)
+    folder = argument.folder
 
-        # set the suffix if the user hasn't already
-        if argument.compressed_suffix is None:
-            argument.compressed_suffix = "_comp"
+    # set the suffix if the user hasn't already
+    if argument.compressed_suffix is None:
+        argument.compressed_suffix = "_comp"
 
-        download_content = os.listdir(folder)
+    download_content = os.listdir(folder)
 
-        # list target folder
-        if argument.compressed_folder is not None:
-            comp_folder = argument.compressed_folder
-        else:
-            comp_folder = argument.url.split("/")[-1]
-            comp_folder = comp_folder.replace(".html", "")
-            comp_folder += "_compressed"
-            comp_folder = os.path.join(dl_dir, comp_folder)
+    # list target folder
+    if argument.compressed_folder is not None:
+        comp_folder = argument.compressed_folder
+    else:
+        comp_folder = os.path.join(os.path.dirname(argument.folder), argument.compressed_suffix)
 
-        if os.path.exists(comp_folder):
-            compressed_content = os.listdir(comp_folder)
-        else:
-            os.makedirs(comp_folder)
-            compressed_content = []
+    if os.path.exists(comp_folder):
+        compressed_content = os.listdir(comp_folder)
+    else:
+        os.makedirs(comp_folder)
+        compressed_content = []
 
-        # iterate over files and compress the ones that aren't done
-        for file in download_content:
-            fp = os.path.join(folder, file)
-            if os.path.isfile(fp):
-                # skip hidden files
-                if file[0] == ".":
-                    continue
+    # iterate over files and compress the ones that aren't done
+    for file in download_content:
+        fp = os.path.join(folder, file)
+        if os.path.isfile(fp):
+            # skip hidden files
+            if file[0] == ".":
+                continue
 
-                hidden_fp = os.path.join(folder, f".{file}")
+            hidden_fp = os.path.join(folder, f".{file}")
 
-                name, ext = os.path.splitext(file)
-                comp_name = f"{name}{argument.compressed_suffix}{ext}"
+            name, ext = os.path.splitext(file)
+            comp_name = f"{name}{argument.compressed_suffix}{ext}"
 
-                # in compressed folder -> it is done
-                if comp_name in compressed_content:
-                    continue
+            # in compressed folder -> it is done
+            if comp_name in compressed_content:
+                continue
 
-                comp_fp = os.path.join(comp_folder, comp_name)
+            comp_fp = os.path.join(comp_folder, comp_name)
 
-                # perform compression
-                raw_list = get_cmd_list()
-                file_list = ["-i", fp, "-o", comp_fp]
-                raw_list.extend(file_list)
+            # perform compression
+            raw_list = get_cmd_list()
+            file_list = ["-i", fp, "-o", comp_fp]
+            raw_list.extend(file_list)
 
-                to_compress.put(CompressionArgument(raw_list, fp, comp_fp, hidden_fp, argument.keep_originals))
+            to_compress.put(CompressionArgument(raw_list, fp, comp_fp, hidden_fp, argument.keep_originals))
     return to_compress
 
 
@@ -251,3 +255,84 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
 
     for i in gpu_h:
         i.join()
+
+
+def download(username, password, argument: SeriesArgs):
+    """
+    Try to download the new episodes of a given series.
+
+    :param username: Username for the video.ethz.ch website
+    :param password: Password for the video.ethz.ch website
+    :param argument: SeriesArgs containing all relevant information
+
+    """
+    session = rq.session()
+
+    to_download = []
+    folder = None
+
+    # get login
+    login = session.post(url="https://video.ethz.ch/j_security_check",
+                         headers={"user-agent": "lol herre"}, data={"_charset_": "utf-8", "j_username": username,
+                                                                    "j_password": password,
+                                                                    "j_validate": True})
+    # Check if login was successful
+    if login.status_code == 403:
+        print("Wrong Credentials")
+
+    # Try to perform login with the series credentials if necessary.
+    if argument.username is not None and argument.password is not None:
+        strip_url = argument.url.replace("www.", "").replace(".html", "").replace(".series-metadata.json", "")
+        login = session.post(url=f"{strip_url}.series-login.json",
+                        headers={"user-agent": "lol herre"},
+                        data={"_charset_": "utf-8", "username": argument.username, "password": argument.password})
+
+        if not login.ok:
+            print("Failed to login to series")
+
+    # load all episodes
+    episodes = session.get(argument.url.replace(".html", ".series-metadata.json"),
+                           headers={"user-agent": "lol it still works"})
+    ep = episodes.json()
+    all_episodes = ep["episodes"]
+
+    folder = argument.folder
+
+    # create local target folder
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    # get streams from episodes:
+    for ep in all_episodes:
+        eid = ep["id"]
+        target = argument.url.replace(".html", f"/{eid}.series-metadata.json")
+        episode = session.get(target, headers={"user-agent": "lol it still worked"})
+
+        # episode downloaded correctly
+        if episode.ok:
+            # get metadata from json
+            j = episode.json()
+            maxq_url = j["selectedEpisode"]["media"]["presentations"][0]
+            date = j["selectedEpisode"]["createdAt"]
+            date = date.replace(":", "_")
+
+            if not (os.path.exists(os.path.join(folder, f"{date}.mp4")) or os.path.exists(
+                    os.path.join(folder, f".{date}.mp4"))):
+                to_download.append(DownloadArgs(full_url=maxq_url["url"],
+                                                download_path=os.path.join(folder, f"{date}.mp4")))
+
+        else:
+            print(episode.status_code)
+
+    for d in to_download:
+        print(d)
+
+    # tp = ThreadPoolExecutor(max_workers=5)
+    tp = ThreadPoolExecutor(max_workers=2)
+    result = tp.map(target_loader, to_download)
+
+    for r in result:
+        print(r)
+
+    tp.shutdown()
+
