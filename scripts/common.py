@@ -154,7 +154,7 @@ def get_cmd_list():
                 '-l', '1080', '--keep-display-aspect']
 
 
-def build_args(argument: SeriesArgs) -> mp.Queue:
+def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue:
     """
     Given the series args indexes the arguments and fills a queue with all the commands to compress all the newly
     available files.
@@ -163,6 +163,10 @@ def build_args(argument: SeriesArgs) -> mp.Queue:
     :return: Queue containing all commands to compress the files
     """
     to_compress = mp.Queue()
+
+    if present_queue is not None:
+        to_compress = present_queue
+
     comp_folder = None
 
     # perform compression
@@ -210,6 +214,8 @@ def build_args(argument: SeriesArgs) -> mp.Queue:
             file_list = ["-i", fp, "-o", comp_fp]
             raw_list.extend(file_list)
 
+            if to_compress.full():
+                raise ValueError("Encountered full queue.")
             to_compress.put(CompressionArgument(raw_list, fp, comp_fp, hidden_fp, argument.keep_originals))
     return to_compress
 
