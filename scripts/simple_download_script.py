@@ -4,7 +4,8 @@ from secrets import username, password, arguments, download_directory
 import datetime
 from common import *
 
-
+print(" THIS SCRIPT USES THE GPU")
+print(" COMPRESSING WITH GPU IS A LOT FASTER BUT ALSO PRODUCES LESS COMPRESSED FILES.")
 start = datetime.datetime.now()
 session = rq.session()
 
