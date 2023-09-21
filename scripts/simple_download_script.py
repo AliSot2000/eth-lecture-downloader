@@ -81,13 +81,13 @@ for d in to_download:
     print(d)
 
 # tp = ThreadPoolExecutor(max_workers=5)
-tp = ThreadPoolExecutor(max_workers=2)
+tp = ThreadPoolExecutor(max_workers=1)
 result = tp.map(target_loader, to_download)
 
 for r in result:
     print(r)
 
-exit(100)
+# exit(100)
 
 to_compress = mp.Queue()
 
