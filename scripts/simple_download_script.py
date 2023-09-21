@@ -155,12 +155,14 @@ if to_compress.empty():
 
 resq = mp.Queue()
 cpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_cpu))
-gpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_gpu))
-gpu2 = th.Thread(target=handler, args=(0, to_compress, resq, compress_gpu))
+gpu = th.Thread(target=handler, args=(2, to_compress, resq, compress_gpu))
+gpu2 = th.Thread(target=handler, args=(1, to_compress, resq, compress_gpu))
+gpu3 = th.Thread(target=handler, args=(3, to_compress, resq, compress_gpu))
 
 cpu.start()
 gpu.start()
 gpu2.start()
+# gpu3.start()
 
 counter = 0
 t_counter = 0
@@ -180,6 +182,7 @@ while counter < 3600 and t_counter < 2:
             print(res)
             counter = 0
 
+# gpu3.join()
 gpu2.join()
 gpu.join()
 cpu.join()
