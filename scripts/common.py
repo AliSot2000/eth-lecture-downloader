@@ -149,7 +149,10 @@ def build_args(dl_args: List[SeriesArgs], dl_dir: str) -> mp.Queue:
         if argument.compressed_suffix is None:
             argument.compressed_suffix = "_comp"
 
-        download_content = os.listdir(folder)
+        if os.path.exists(folder):
+            download_content = os.listdir(folder)
+        else:
+            download_content =  []
 
         # list target folder
         if argument.compressed_folder is not None:
