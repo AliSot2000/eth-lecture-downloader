@@ -159,6 +159,7 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     Given the series args indexes the arguments and fills a queue with all the commands to compress all the newly
     available files.
 
+    :param present_queue: Queue to fill with commands to compress the files
     :param argument: SeriesArgs containing all relevant information
     :return: Queue containing all commands to compress the files
     """
@@ -167,8 +168,6 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     if present_queue is not None:
         to_compress = present_queue
 
-    comp_folder = None
-
     # perform compression
     folder = argument.folder
 
@@ -176,10 +175,10 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     if argument.compressed_suffix is None:
         argument.compressed_suffix = "_comp"
 
-        if os.path.exists(folder):
-            download_content = os.listdir(folder)
-        else:
-            download_content =  []
+    if os.path.exists(folder):
+        download_content = os.listdir(folder)
+    else:
+        download_content =  []
 
     # list target folder
     if argument.compressed_folder is not None:
