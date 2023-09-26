@@ -150,42 +150,4 @@ for argument in arguments:
             to_compress.put(CompressionArgument(raw_list, fp, comp_fp, hidden_fp, argument.keep_originals))
 
 
-if to_compress.empty():
-    exit(0)
-
-resq = mp.Queue()
-cpu = th.Thread(target=handler, args=(0, to_compress, resq, compress_cpu))
-gpu = th.Thread(target=handler, args=(2, to_compress, resq, compress_gpu))
-gpu2 = th.Thread(target=handler, args=(1, to_compress, resq, compress_gpu))
-gpu3 = th.Thread(target=handler, args=(3, to_compress, resq, compress_gpu))
-
-cpu.start()
-gpu.start()
-gpu2.start()
-# gpu3.start()
-
-counter = 0
-t_counter = 0
-
-while counter < 3600 and t_counter < 2:
-    time.sleep(1)
-
-    if not resq.empty():
-        res = resq.get(block=False)
-        if res == "EXCEPTION":
-            exit(1)
-        elif res == "TERMINATED":
-            t_counter += 1
-            counter = 0
-        else:
-            print("DONE with:")
-            print(res)
-            counter = 0
-
-# gpu3.join()
-gpu2.join()
-gpu.join()
-cpu.join()
-print("Processes killed, completely done")
-stop = datetime.datetime.now()
-print(f"It took {(stop - start).total_seconds()}")
+print(f"Videos To Compress: {to_compress.qsize()}")
