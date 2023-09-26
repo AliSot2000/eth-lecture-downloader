@@ -1,7 +1,10 @@
 from secrets import arguments, download_directory
 from common import *
+import multiprocessing as mp
 
 
 if __name__ == "__main__":
-    compression_queue = build_args(dl_args=arguments, dl_dir=download_directory)
-    compress(compression_queue, 1, 0)
+    q = mp.Queue()
+    for arg in arguments:
+        q = build_args(argument=arg, present_queue=q)
+    compress(q, 1, 0)
