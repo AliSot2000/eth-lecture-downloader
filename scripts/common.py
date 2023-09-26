@@ -223,6 +223,15 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
 
 
 def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
+    """
+    Function to compress the content of the queue. The function will spawn cpu_i + gpu_i worker threads and try to
+    comparess as fast as possiblel.
+
+    WARNING: Using the GPU compresses faster BUT the filesize isn't as small.
+    :param cpu_i: number of cpu workers
+    :param gpu_i: number of gpu workers.
+    :return:
+    """
     if gpu_i > 0:
         print("WARNING: Compressing using nvenc will INCREASE file sizes drastically.")
     if q.empty():
