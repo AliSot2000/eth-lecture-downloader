@@ -274,12 +274,13 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
         i.join()
 
 
-def download(username, password, argument: SeriesArgs):
+def download(argument: SeriesArgs, username=None, password=None, wk: int = 2):
     """
     Try to download the new episodes of a given series.
 
     :param username: Username for the video.ethz.ch website
     :param password: Password for the video.ethz.ch website
+    :param wk: Worker count watch out for ram overflow
     :param argument: SeriesArgs containing all relevant information
 
     """
@@ -289,13 +290,15 @@ def download(username, password, argument: SeriesArgs):
     folder = None
 
     # get login
-    login = session.post(url="https://video.ethz.ch/j_security_check",
-                         headers={"user-agent": "lol herre"}, data={"_charset_": "utf-8", "j_username": username,
-                                                                    "j_password": password,
-                                                                    "j_validate": True})
-    # Check if login was successful
-    if login.status_code == 403:
-        print("Wrong Credentials")
+    if username is not None and password is not None:
+        login = session.post(url="https://video.ethz.ch/j_security_check",
+                             headers={"user-agent": "lol herre"}, data={"_charset_": "utf-8", "j_username": username,
+                                                                        "j_password": password,
+                                                                        "j_validate": True})
+        # Check if login was successful
+        if login.status_code == 403:
+            print("Wrong Credentials")
+            return
 
     # Try to perform login with the series credentials if necessary.
     if argument.username is not None and argument.password is not None:
@@ -345,7 +348,7 @@ def download(username, password, argument: SeriesArgs):
         print(d)
 
     # tp = ThreadPoolExecutor(max_workers=5)
-    tp = ThreadPoolExecutor(max_workers=2)
+    tp = ThreadPoolExecutor(max_workers=wk)
     result = tp.map(target_loader, to_download)
 
     for r in result:
