@@ -159,6 +159,7 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     Given the series args indexes the arguments and fills a queue with all the commands to compress all the newly
     available files.
 
+    :param present_queue: Queue to fill with commands to compress the files
     :param argument: SeriesArgs containing all relevant information
     :param present_queue: Queue containing all commands to compress the files
 
@@ -169,8 +170,6 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     if present_queue is not None:
         to_compress = present_queue
 
-    comp_folder = None
-
     # perform compression
     folder = argument.folder
 
@@ -178,7 +177,10 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     if argument.compressed_suffix is None:
         argument.compressed_suffix = "_comp"
 
-    download_content = os.listdir(folder)
+    if os.path.exists(folder):
+        download_content = os.listdir(folder)
+    else:
+        download_content =  []
 
     # list target folder
     if argument.compressed_folder is not None:
@@ -223,6 +225,15 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
 
 
 def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
+    """
+    Function to compress the content of the queue. The function will spawn cpu_i + gpu_i worker threads and try to
+    comparess as fast as possiblel.
+
+    WARNING: Using the GPU compresses faster BUT the filesize isn't as small.
+    :param cpu_i: number of cpu workers
+    :param gpu_i: number of gpu workers.
+    :return:
+    """
     if gpu_i > 0:
         print("WARNING: Compressing using nvenc will INCREASE file sizes drastically.")
     if q.empty():
@@ -265,12 +276,13 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
         i.join()
 
 
-def download(username, password, argument: SeriesArgs):
+def download(argument: SeriesArgs, username=None, password=None, wk: int = 2):
     """
     Try to download the new episodes of a given series.
 
     :param username: Username for the video.ethz.ch website
     :param password: Password for the video.ethz.ch website
+    :param wk: Worker count watch out for ram overflow
     :param argument: SeriesArgs containing all relevant information
 
     """
@@ -280,13 +292,15 @@ def download(username, password, argument: SeriesArgs):
     folder = None
 
     # get login
-    login = session.post(url="https://video.ethz.ch/j_security_check",
-                         headers={"user-agent": "lol herre"}, data={"_charset_": "utf-8", "j_username": username,
-                                                                    "j_password": password,
-                                                                    "j_validate": True})
-    # Check if login was successful
-    if login.status_code == 403:
-        print("Wrong Credentials")
+    if username is not None and password is not None:
+        login = session.post(url="https://video.ethz.ch/j_security_check",
+                             headers={"user-agent": "lol herre"}, data={"_charset_": "utf-8", "j_username": username,
+                                                                        "j_password": password,
+                                                                        "j_validate": True})
+        # Check if login was successful
+        if login.status_code == 403:
+            print("Wrong Credentials")
+            return
 
     # Try to perform login with the series credentials if necessary.
     if argument.username is not None and argument.password is not None:
@@ -336,7 +350,7 @@ def download(username, password, argument: SeriesArgs):
         print(d)
 
     # tp = ThreadPoolExecutor(max_workers=5)
-    tp = ThreadPoolExecutor(max_workers=2)
+    tp = ThreadPoolExecutor(max_workers=wk)
     result = tp.map(target_loader, to_download)
 
     for r in result:
