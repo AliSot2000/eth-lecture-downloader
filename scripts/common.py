@@ -161,6 +161,8 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
 
     :param present_queue: Queue to fill with commands to compress the files
     :param argument: SeriesArgs containing all relevant information
+    :param present_queue: Queue containing all commands to compress the files
+
     :return: Queue containing all commands to compress the files
     """
     to_compress = mp.Queue()
