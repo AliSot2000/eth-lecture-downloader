@@ -46,6 +46,7 @@ class DownloadArgs:
     """
     full_url: str
     download_path: str
+    temp_path: str
 
 
 def target_loader(command: DownloadArgs):
@@ -54,6 +55,7 @@ def target_loader(command: DownloadArgs):
     """
     url = command.full_url
     path = command.download_path
+    temp = command.temp_path
     print(f"downloading {url}\n"
           f"to {path}")
 
@@ -61,16 +63,22 @@ def target_loader(command: DownloadArgs):
         stream = rq.get(url, headers={"user-agent": "Firefox"}, stream=True)
 
         if stream.ok:
-            with open(path, "wb") as file:
+            with open(temp, "wb") as file:
                 shutil.copyfileobj(stream.raw, file)
 
             print(f"Done {command.download_path}")
+
+            shutil.move(temp, path)
+            print(f"Moved from temp location")
+
             return "success"
         else:
             return command
     except Exception as e:
         print(e)
         return command
+
+
 
 
 
@@ -345,15 +353,18 @@ def download(argument: SeriesArgs, username=None, password=None, wk: int = 2):
             if not (os.path.exists(os.path.join(folder, f"{date}.mp4")) or os.path.exists(
                     os.path.join(folder, f".{date}.mp4"))):
                 to_download.append(DownloadArgs(full_url=maxq_url["url"],
-                                                download_path=os.path.join(folder, f"{date}.mp4")))
+                                                download_path=os.path.join(folder, f"{date}.mp4"),
+                                                temp_path=os.path.join(folder, f"{date}_temp.mp4")))
 
+            # Removing previously interrupted downloads
+            if os.path.exists(os.path.join(folder, f"{date}_temp.mp4")):
+                os.remove(os.path.join(folder, f"{date}_temp.mp4"))
         else:
             print(episode.status_code)
 
     for d in to_download:
         print(d)
 
-    # tp = ThreadPoolExecutor(max_workers=5)
     tp = ThreadPoolExecutor(max_workers=wk)
     result = tp.map(target_loader, to_download)
 
