@@ -79,10 +79,6 @@ def target_loader(command: DownloadArgs):
         return command
 
 
-
-
-
-
 def compress_cpu(command: CompressionArgument, identifier: int):
     """
     Function to compress the given file with handbrake. The Command is returned in the end.
