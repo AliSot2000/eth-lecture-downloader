@@ -82,6 +82,7 @@ def compress_cpu(command: CompressionArgument, identifier: int):
         stderr=subprocess.PIPE, universal_newlines=True)
 
     # Do something else
+    # INFO this is the code to continuously print output from a pipe.
     for line in iter(proc.stdout.readline, ""):
         print(f"{identifier:02}: {line.strip()}")
 
