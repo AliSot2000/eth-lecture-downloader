@@ -100,10 +100,11 @@ def compress_cpu(command: CompressionArgument, identifier: int):
         output = proc.stdout.read()
         print(output)
 
-    if command.keep_original is False:
-        os.remove(command.source_path)
-        with open(command.hidden_path, "w") as file:
-            file.write(f"{identifier:02}: Keep originals is false")
+    # INFO done in outer handler atm
+    # if command.keep_original is False:
+    #     os.remove(command.source_path)
+    #     with open(command.hidden_path, "w") as file:
+    #         file.write(f"{identifier:02}: Keep originals is false")
 
     # nvenc_h264 returns NONE!!!
     if return_code != 0 and return_code is not None:
@@ -276,6 +277,11 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
                 print("DONE with:")
                 print(res)
                 to = 0
+
+                if res.keep_original is False:
+                    os.remove(res.source_path)
+                    with open(res.hidden_path, "w") as file:
+                        file.write(f"Main: Keep originals is false")
 
     for i in cpu_h:
         i.join()
