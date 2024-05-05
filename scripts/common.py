@@ -5,6 +5,7 @@ import subprocess
 import multiprocessing as mp
 import time
 import queue
+import shutil
 import threading as th
 from concurrent.futures import ThreadPoolExecutor
 
@@ -57,19 +58,21 @@ def target_loader(command: DownloadArgs):
           f"to {path}")
 
     try:
-        stream = rq.get(url, headers={"user-agent": "Firefox"})
+        stream = rq.get(url, headers={"user-agent": "Firefox"}, stream=True)
+
+        if stream.ok:
+            with open(path, "wb") as file:
+                shutil.copyfileobj(stream.raw, file)
+
+            print(f"Done {command.download_path}")
+            return "success"
+        else:
+            return command
     except Exception as e:
         print(e)
         return command
 
-    if stream.ok:
-        with open(path, "wb") as file:
-            file.write(stream.content)
 
-        print(f"Done {command.download_path}")
-        return "success"
-    else:
-        return command
 
 
 def compress_cpu(command: CompressionArgument, identifier: int):
