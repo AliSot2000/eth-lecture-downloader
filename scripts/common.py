@@ -288,7 +288,10 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
             else:
                 print("DONE with:")
                 print(res)
+                print(f"Deleting in 1s")
                 to = 0
+
+                time.sleep(1)
 
                 if res.keep_original is False:
                     os.remove(res.source_path)
