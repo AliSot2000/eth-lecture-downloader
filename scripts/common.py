@@ -83,6 +83,26 @@ def compress_cpu(command: CompressionArgument, identifier: int):
     """
     Function to compress the given file with handbrake. The Command is returned in the end.
     """
+    command.command_list.extend(['-q', '24.0'])
+    return compress_common(command, identifier)
+
+
+def compress_gpu(command: CompressionArgument, identifier: int):
+    """
+    Function to use nvenc_h264 - increases encoding speed, increases file size.
+    """
+    command.command_list.extend(["-e", "nvenc_h264", '-q', '29'])
+    return compress_common(command, identifier)
+
+
+def compress_common(command: CompressionArgument, identifier: int):
+    """
+    Common compression function for both CPU and GPU compression.
+
+    :param command: command to run
+    :param identifier: process identifier
+    :return:
+    """
     proc = subprocess.Popen(
         command.command_list,
         stdout=subprocess.PIPE,
@@ -111,14 +131,6 @@ def compress_cpu(command: CompressionArgument, identifier: int):
         raise RuntimeError(f"{identifier:02}: Handbrake returned non-zero return code {return_code}")
 
     return command
-
-
-def compress_gpu(command: CompressionArgument, identifier: int):
-    """
-    Function to use nvenc_h264 - increases encoding speed, increases file size.
-    """
-    command.command_list.extend(["-e", "nvenc_h264"])
-    return compress_cpu(command, identifier)
 
 
 def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn: callable):
@@ -159,7 +171,7 @@ def get_cmd_list():
     """
     Builds teh default command list for handbrake.
     """
-    return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-q', '24.0 ', '-w', '1920',
+    return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-w', '1920',
                 '-l', '1080', '--keep-display-aspect']
 
 
