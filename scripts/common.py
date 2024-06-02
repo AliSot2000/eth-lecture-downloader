@@ -250,9 +250,10 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
 def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
     """
     Function to compress the content of the queue. The function will spawn cpu_i + gpu_i worker threads and try to
-    comparess as fast as possiblel.
+    compress as fast as possible.
 
     WARNING: Using the GPU compresses faster BUT the filesize isn't as small.
+    :param q: Input queue to compress.
     :param cpu_i: number of cpu workers
     :param gpu_i: number of gpu workers.
     :return:
