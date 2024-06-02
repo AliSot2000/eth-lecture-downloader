@@ -108,6 +108,8 @@ def compress_common(command: CompressionArgument, identifier: int):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE, universal_newlines=True)
 
+    print(f"{identifier:02}: Started {command.source_path}")
+
     # Do something else
     # INFO this is the code to continuously print output from a pipe.
     for line in iter(proc.stdout.readline, ""):
