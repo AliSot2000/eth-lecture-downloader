@@ -271,9 +271,9 @@ def compress(q: mp.Queue, cpu_i: int = 0, gpu_i: int = 0):
         cpu_h.append(th.Thread(target=handler, args=(i, q, resq, compress_cpu)))
         cpu_h[i].start()
 
-    for i in range(cpu_i, cpu_i + gpu_i):
-        gpu_h.append(th.Thread(target=handler, args=(i, q, resq, compress_gpu)))
-        gpu_h[i - cpu_i].start()
+    for i in range(gpu_i):
+        gpu_h.append(th.Thread(target=handler, args=(cpu_i + i, q, resq, compress_gpu)))
+        gpu_h[i].start()
 
     to = 0
     e_count = 0
