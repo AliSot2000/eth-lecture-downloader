@@ -1,4 +1,4 @@
-from secrets import arguments, download_directory
+from secrets import arguments
 from common import *
 import multiprocessing as mp
 
