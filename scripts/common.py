@@ -322,7 +322,6 @@ def download(argument: SeriesArgs, username=None, password=None, wk: int = 2):
     session = rq.session()
 
     to_download = []
-    folder = None
 
     # get login
     if username is not None and password is not None:
