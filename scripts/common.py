@@ -188,10 +188,10 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
 
     :return: Queue containing all commands to compress the files
     """
-    to_compress = mp.Queue()
-
     if present_queue is not None:
         to_compress = present_queue
+    else:
+        to_compress = mp.Queue()
 
     # perform compression
     folder = argument.folder
@@ -200,6 +200,7 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     if argument.compressed_suffix is None:
         argument.compressed_suffix = "_comp"
 
+    # Get the videos to compress
     if os.path.exists(folder):
         download_content = os.listdir(folder)
     else:
