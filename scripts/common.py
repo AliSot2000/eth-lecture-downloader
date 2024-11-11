@@ -169,12 +169,16 @@ def handler(worker_nr: int, command_queue: mp.Queue, result_queue: mp.Queue, fn:
     print(f"{worker_nr:02}: Terminated")
     result_queue.put("TERMINATED")
 
-def get_cmd_list():
+def get_cmd_list(flatpak: bool):
     """
     Builds teh default command list for handbrake.
     """
-    return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-w', '1920',
-                '-l', '1080', '--keep-display-aspect']
+    if flatpak:
+        return ['flatpak', 'run', 'fr.handbrake.HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-w', '1920',
+                    '-l', '1080', '--keep-display-aspect']
+    else:
+        return ['HandBrakeCLI', '-v', '5', '-Z', 'Very Fast 1080p30', '-f', 'av_mp4', '-w', '1920',
+                    '-l', '1080', '--keep-display-aspect']
 
 
 def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue:
