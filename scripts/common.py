@@ -181,7 +181,7 @@ def get_cmd_list(flatpak: bool):
                     '-l', '1080', '--keep-display-aspect']
 
 
-def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue:
+def build_args(argument: SeriesArgs, present_queue: mp.Queue = None, flatpak: bool = True) -> mp.Queue:
     """
     Given the series args indexes the arguments and fills a queue with all the commands to compress all the newly
     available files.
@@ -189,6 +189,7 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
     :param present_queue: Queue to fill with commands to compress the files
     :param argument: SeriesArgs containing all relevant information
     :param present_queue: Queue containing all commands to compress the files
+    :param flatpak: Use flatpak or not
 
     :return: Queue containing all commands to compress the files
     """
@@ -242,7 +243,7 @@ def build_args(argument: SeriesArgs, present_queue: mp.Queue = None) -> mp.Queue
             comp_fp = os.path.join(comp_folder, comp_name)
 
             # perform compression
-            raw_list = get_cmd_list()
+            raw_list = get_cmd_list(flatpak)
             file_list = ["-i", fp, "-o", comp_fp]
             raw_list.extend(file_list)
 
